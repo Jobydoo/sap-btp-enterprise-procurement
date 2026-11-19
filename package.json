@@ -7,6 +7,7 @@
     "start": "cds-serve",
     "watch": "cds watch",
     "test": "node --test test/service.test.js",
+    "test:api": "node --test test/api_index.test.js",
     "test:ui": "node --test test/ui_buttons.test.js",
     "build": "node -e \"console.log('Build ready for deployment')\"",
     "build:mta": "cds build --production"
