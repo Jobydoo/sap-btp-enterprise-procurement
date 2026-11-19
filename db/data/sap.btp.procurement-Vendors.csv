@@ -1,0 +1,7 @@
+ID;supplierName;s4VendorCode;riskCategory;rating;country;city;paymentTerms;isActive;complianceScore
+10000000-0000-0000-0000-000000000001;Dell Technologies Enterprise;VEND-1001;LOW;4.85;US;Round Rock;Net 30;true;98.50
+10000000-0000-0000-0000-000000000002;Siemens Industrial Automation;VEND-1002;LOW;4.90;DE;Munich;Net 60;true;99.20
+10000000-0000-0000-0000-000000000003;Cisco Global Systems;VEND-1003;MEDIUM;4.40;US;San Jose;Net 30;true;92.00
+10000000-0000-0000-0000-000000000004;Amazon Web Services Cloud;VEND-1004;LOW;4.95;US;Seattle;Net 15;true;99.90
+10000000-0000-0000-0000-000000000005;PwC Advisory Consulting;VEND-1005;HIGH;3.80;GB;London;Net 45;true;84.50
+10000000-0000-0000-0000-000000000006;Schneider Electric Power;VEND-1006;LOW;4.75;FR;Rueil-Malmaison;Net 30;true;97.10

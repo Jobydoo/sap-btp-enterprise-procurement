@@ -1,0 +1,16 @@
+{
+  "server": {
+    "impl": "srv/server.js"
+  },
+  "requires": {
+    "db": {
+      "kind": "sqlite",
+      "credentials": {
+        "url": "db.sqlite"
+      }
+    },
+    "auth": {
+      "kind": "mocked"
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "xsappname": "btp-enterprise-procurement",
+  "tenant-mode": "dedicated",
+  "description": "Security descriptor for SAP BTP Enterprise CapEx Procurement Application",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.ProcurementViewer",
+      "description": "Read-only access to CapEx analytics, budgets, and request portfolio"
+    },
+    {
+      "name": "$XSAPPNAME.ProcurementManager",
+      "description": "Departmental review and approval authorization for CapEx requests"
+    },
+    {
+      "name": "$XSAPPNAME.ProcurementAdmin",
+      "description": "Executive sign-off, S/4HANA destination sync, and system configuration"
+    }
+  ],
+  "attributes": [
+    {
+      "name": "CostCenterDepartment",
+      "description": "Assigned cost center department for authorization filtering",
+      "valueType": "string"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "ProcurementViewerTemplate",
+      "description": "Allows viewing CapEx dashboards and reports",
+      "scope-references": [
+        "$XSAPPNAME.ProcurementViewer"
+      ]
+    },
+    {
+      "name": "ProcurementManagerTemplate",
+      "description": "Allows department managers to review and approve submitted requests",
+      "scope-references": [
+        "$XSAPPNAME.ProcurementViewer",
+        "$XSAPPNAME.ProcurementManager"
+      ],
+      "attribute-references": [
+        {
+          "name": "CostCenterDepartment"
+        }
+      ]
+    },
+    {
+      "name": "ProcurementAdminTemplate",
+      "description": "Provides full executive control, treasury release, and ERP sync rights",
+      "scope-references": [
+        "$XSAPPNAME.ProcurementViewer",
+        "$XSAPPNAME.ProcurementManager",
+        "$XSAPPNAME.ProcurementAdmin"
+      ]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "CapEx_Viewer_Collection",
+      "description": "Standard business user with read-only access to CapEx records",
+      "role-template-references": [
+        "$XSAPPNAME.ProcurementViewerTemplate"
+      ]
+    },
+    {
+      "name": "CapEx_Manager_Collection",
+      "description": "Departmental manager with review and approval authority",
+      "role-template-references": [
+        "$XSAPPNAME.ProcurementManagerTemplate"
+      ]
+    },
+    {
+      "name": "CapEx_Admin_Collection",
+      "description": "Enterprise administrator with executive release privileges",
+      "role-template-references": [
+        "$XSAPPNAME.ProcurementAdminTemplate"
+      ]
+    }
+  ]
+}

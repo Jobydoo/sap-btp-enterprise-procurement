@@ -1,0 +1,60 @@
+{
+  "name": "btp-enterprise-procurement",
+  "version": "1.0.0",
+  "description": "Full-Stack Enterprise SAP BTP CapEx Procurement & Asset Hub with S/4HANA Integration & AI Copilot",
+  "main": "srv/server.js",
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch",
+    "test": "node --test test/service.test.js",
+    "build": "cds build --production"
+  },
+  "keywords": [
+    "sap",
+    "btp",
+    "cap",
+    "cloud-foundry",
+    "fiori",
+    "s4hana",
+    "ai-core",
+    "hana-cloud",
+    "odata-v4"
+  ],
+  "dependencies": {
+    "@cap-js/sqlite": "^3.1.3",
+    "@sap/cds": "^10.2.2",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@sap/cds-dk": "^10.2.1"
+  },
+  "cds": {
+    "server": {
+      "impl": "srv/server.js"
+    },
+    "requires": {
+      "[development]": {
+        "db": {
+          "kind": "sqlite",
+          "credentials": {
+            "url": "db.sqlite"
+          }
+        },
+        "auth": {
+          "kind": "mocked"
+        }
+      },
+      "[production]": {
+        "db": {
+          "kind": "hana"
+        },
+        "auth": {
+          "kind": "xsuaa"
+        },
+        "destinations": {
+          "kind": "destination"
+        }
+      }
+    }
+  }
+}

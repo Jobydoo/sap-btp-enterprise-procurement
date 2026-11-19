@@ -1,0 +1,6 @@
+ID;costCenterCode;description;companyCode;department;managerEmail;allocatedBudget;currency;isActive
+20000000-0000-0000-0000-000000000001;CC-ENG-101;Global R&D and Engineering;1010;Engineering;engineering-lead@enterprise.corp;1500000.00;USD;true
+20000000-0000-0000-0000-000000000002;CC-OPS-202;Plant Operations & Manufacturing;1010;Operations;ops-manager@enterprise.corp;2500000.00;USD;true
+20000000-0000-0000-0000-000000000003;CC-IT-303;Enterprise Infrastructure & Cloud;1010;IT Infrastructure;cio-office@enterprise.corp;1200000.00;USD;true
+20000000-0000-0000-0000-000000000004;CC-FIN-404;Corporate Finance & Treasury;1010;Finance;treasury-lead@enterprise.corp;800000.00;USD;true
+20000000-0000-0000-0000-000000000005;CC-MKT-505;Global Marketing & Brand;1010;Marketing;cmo-ops@enterprise.corp;600000.00;USD;true
