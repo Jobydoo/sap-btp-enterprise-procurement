@@ -10,7 +10,13 @@ async function getApp() {
             const projectRoot = path.resolve(__dirname, '..');
             process.chdir(projectRoot);
 
-            // In serverless runtime (e.g. Vercel), copy db to /tmp if writable DB is needed
+            // Load precompiled CSN model
+            const csnPath = path.join(projectRoot, 'srv', 'csn.json');
+            if (fs.existsSync(csnPath)) {
+                cds.model = await cds.load(csnPath);
+            }
+
+            // In serverless runtime (e.g. Vercel), copy db to /tmp
             const tmpDb = path.join('/tmp', 'db.sqlite');
             const localDb = path.join(projectRoot, 'db.sqlite');
 
@@ -25,7 +31,6 @@ async function getApp() {
                 }
             }
 
-            // Ensure mocked auth in serverless
             cds.env.requires.auth = { kind: 'mocked' };
 
             // Start server instance
