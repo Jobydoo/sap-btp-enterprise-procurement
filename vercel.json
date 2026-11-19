@@ -1,29 +1,13 @@
 {
   "version": 2,
-  "name": "sap-btp-enterprise-procurement",
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/index.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "app/**",
-          "db/**",
-          "srv/**",
-          "db.sqlite",
-          ".cdsrc.json",
-          "package.json"
-        ]
-      }
+      "source": "/odata/:match*",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/api/:match*",
+      "destination": "/api/index.js"
     }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.js" },
-    { "src": "/odata/(.*)", "dest": "/api/index.js" },
-    { "src": "/styles.css", "dest": "/app/styles.css" },
-    { "src": "/app.js", "dest": "/app/app.js" },
-    { "src": "/index.html", "dest": "/app/index.html" },
-    { "src": "/", "dest": "/app/index.html" },
-    { "src": "/(.*)", "dest": "/api/index.js" }
   ]
 }

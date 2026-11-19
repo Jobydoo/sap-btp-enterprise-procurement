@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAP BTP CapEx Procurement & Asset Hub</title>
+    <!-- SAP 72 / Horizon Font & Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=72:wght@300;400;600;700&display=swap">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ===================================================================== -->
+    <!-- SAP FIORI SHELLBAR                                                    -->
+    <!-- ===================================================================== -->
+    <header class="sap-shellbar">
+        <div class="shellbar-left">
+            <div class="sap-logo-badge">
+                <span class="sap-logo-text">SAP</span>
+            </div>
+            <div class="shellbar-titles">
+                <span class="shellbar-product">Business Technology Platform</span>
+                <span class="shellbar-app">CapEx & Asset Procurement Hub</span>
+            </div>
+        </div>
+
+        <div class="shellbar-center">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="globalSearchInput" placeholder="Search requests, materials, cost centers...">
+            </div>
+        </div>
+
+        <div class="shellbar-right">
+            <!-- Simulated BTP Persona Switcher -->
+            <div class="persona-switcher">
+                <label for="personaSelect">Persona:</label>
+                <select id="personaSelect">
+                    <option value="Admin" selected>Sarah Jenkins (Admin / CPO)</option>
+                    <option value="Manager">Alex Rivera (Dept Manager)</option>
+                    <option value="Viewer">David Kim (Viewer / Requester)</option>
+                </select>
+            </div>
+
+            <div class="system-status-pill" id="systemHealthBadge" title="BTP Foundation Status">
+                <span class="pulse-dot"></span>
+                <span id="healthText">BTP Connected</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- EXECUTIVE KPI METRICS BAR                                             -->
+    <!-- ===================================================================== -->
+    <section class="kpi-banner">
+        <div class="kpi-card" id="kpiTotalCapEx">
+            <div class="kpi-title">Committed CapEx</div>
+            <div class="kpi-value" id="valTotalCapEx">$0</div>
+            <div class="kpi-sub" id="subTotalCapEx">Total pipeline value</div>
+        </div>
+
+        <div class="kpi-card" id="kpiBudgetUtil">
+            <div class="kpi-title">Budget Utilization</div>
+            <div class="kpi-value" id="valBudgetUtil">0%</div>
+            <div class="kpi-progress">
+                <div class="progress-bar" id="budgetProgressBar" style="width: 0%;"></div>
+            </div>
+            <div class="kpi-sub" id="subBudgetUtil">Of $6.6M Enterprise CapEx</div>
+        </div>
+
+        <div class="kpi-card" id="kpiPending">
+            <div class="kpi-title">Pending Governance</div>
+            <div class="kpi-value warning" id="valPending">0</div>
+            <div class="kpi-sub">Awaiting Mgr / Finance sign-off</div>
+        </div>
+
+        <div class="kpi-card" id="kpiHighRisk">
+            <div class="kpi-title">High-Risk Proposals</div>
+            <div class="kpi-value danger" id="valHighRisk">0</div>
+            <div class="kpi-sub">AI Anomaly / Price Variance</div>
+        </div>
+
+        <div class="kpi-card" id="kpiS4Sync">
+            <div class="kpi-title">S/4HANA Cloud Synced</div>
+            <div class="kpi-value success" id="valS4Sync">0</div>
+            <div class="kpi-sub">Purchase Requisitions released</div>
+        </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- SAP ICON TAB BAR NAVIGATION                                           -->
+    <!-- ===================================================================== -->
+    <nav class="sap-tabbar">
+        <button class="tab-button active" data-tab="tab-dashboard">
+            <span class="tab-icon">📊</span> Executive Analytics
+        </button>
+        <button class="tab-button" data-tab="tab-capex">
+            <span class="tab-icon">📋</span> CapEx Requests & Workflows
+        </button>
+        <button class="tab-button" data-tab="tab-copilot">
+            <span class="tab-icon">🤖</span> SAP GenAI Copilot
+        </button>
+        <button class="tab-button" data-tab="tab-integrations">
+            <span class="tab-icon">🔄</span> S/4HANA & Destinations
+        </button>
+        <button class="tab-button" data-tab="tab-bulk">
+            <span class="tab-icon">📤</span> Bulk Data Center
+        </button>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- MAIN CONTENT CONTAINER                                                -->
+    <!-- ===================================================================== -->
+    <main class="main-container">
+
+        <!-- TAB 1: EXECUTIVE ANALYTICS -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="dashboard-grid">
+                <!-- Department Spend vs Budget Chart -->
+                <div class="sap-card col-span-2">
+                    <div class="card-header">
+                        <div class="card-title">Department Budget Allocation & Utilization (FY2026)</div>
+                        <span class="badge badge-info">Real-time Persistence</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="deptAnalyticsList" class="dept-metric-grid">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CapEx Status Distribution Card -->
+                <div class="sap-card">
+                    <div class="card-header">
+                        <div class="card-title">Workflow Status Breakdown</div>
+                    </div>
+                    <div class="card-body">
+                        <div id="statusDistribution" class="status-dist-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Integration Health Card -->
+                <div class="sap-card col-span-3">
+                    <div class="card-header">
+                        <div class="card-title">SAP BTP Foundation Connectivity & Integration Monitor</div>
+                        <button class="sap-btn sap-btn-ghost btn-sm" id="btnRefreshIntegrations">🔄 Refresh Status</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="integration-cards-grid" id="integrationQuickCards">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: CAPEX REQUESTS & WORKFLOWS -->
+        <div id="tab-capex" class="tab-content">
+            <!-- Filter Toolbar -->
+            <div class="sap-toolbar">
+                <div class="toolbar-filters">
+                    <div class="filter-item">
+                        <label>Department:</label>
+                        <select id="filterDepartment">
+                            <option value="ALL">All Departments</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Operations">Operations</option>
+                            <option value="IT Infrastructure">IT Infrastructure</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Marketing">Marketing</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-item">
+                        <label>Status:</label>
+                        <select id="filterStatus">
+                            <option value="ALL">All Statuses</option>
+                            <option value="DRAFT">Draft</option>
+                            <option value="SUBMITTED">Submitted</option>
+                            <option value="DEPT_APPROVED">Dept Approved</option>
+                            <option value="FINANCE_APPROVED">Finance Approved</option>
+                            <option value="ORDER_CREATED">Order Created (S/4HANA)</option>
+                            <option value="REJECTED">Rejected</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-item">
+                        <label>Priority:</label>
+                        <select id="filterPriority">
+                            <option value="ALL">All Priorities</option>
+                            <option value="CRITICAL">Critical</option>
+                            <option value="HIGH">High</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="LOW">Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="toolbar-actions">
+                    <button class="sap-btn sap-btn-primary" id="btnOpenNewRequestModal">➕ New CapEx Request</button>
+                    <button class="sap-btn sap-btn-secondary" id="btnExportCSV">⬇️ Export to CSV</button>
+                </div>
+            </div>
+
+            <!-- Master Table -->
+            <div class="sap-table-container">
+                <table class="sap-table" id="capexTable">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Title</th>
+                            <th>Department</th>
+                            <th>Priority</th>
+                            <th>Total Amount</th>
+                            <th>Risk Score</th>
+                            <th>S/4HANA PR #</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="capexTableBody">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- DETAIL VIEW / OBJECT PAGE DRAWER -->
+            <div class="sap-drawer" id="requestDetailDrawer">
+                <div class="drawer-header">
+                    <div>
+                        <div class="drawer-subtitle" id="drawerDeptRequester">Engineering · Dr. Elena Rostova</div>
+                        <h2 class="drawer-title" id="drawerTitle">High-Performance GPU Cluster</h2>
+                    </div>
+                    <button class="drawer-close" id="btnCloseDrawer">✕</button>
+                </div>
+
+                <div class="drawer-actions-bar" id="drawerActionBar">
+                    <!-- Contextual buttons injected via JS -->
+                </div>
+
+                <div class="drawer-body">
+                    <div class="detail-overview-grid">
+                        <div class="overview-item">
+                            <span class="overview-label">Status</span>
+                            <span id="detailStatusBadge" class="badge">DRAFT</span>
+                        </div>
+                        <div class="overview-item">
+                            <span class="overview-label">Total Amount</span>
+                            <span class="overview-value" id="detailTotalAmount">$0.00</span>
+                        </div>
+                        <div class="overview-item">
+                            <span class="overview-label">AI Risk Level</span>
+                            <span id="detailRiskBadge" class="badge">LOW</span>
+                        </div>
+                        <div class="overview-item">
+                            <span class="overview-label">S/4HANA Document</span>
+                            <span class="overview-value text-mono" id="detailS4Pr">-</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <div class="section-title">Business Justification</div>
+                        <p class="section-text" id="detailJustification">-</p>
+                    </div>
+
+                    <!-- Line Items Section -->
+                    <div class="detail-section">
+                        <div class="section-title">Itemized Equipment & Services</div>
+                        <table class="sap-table table-sm" id="detailItemsTable">
+                            <thead>
+                                <tr>
+                                    <th>Item #</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Qty</th>
+                                    <th>Unit Price</th>
+                                    <th>Line Total</th>
+                                    <th>Benchmark Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailItemsBody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- AI Analysis Section -->
+                    <div class="detail-section" id="aiAnalysisSection">
+                        <div class="section-title">SAP AI Core / GenAI Hub Evaluation</div>
+                        <div class="ai-box" id="aiEvaluationContent">
+                            <p class="text-muted">Click "Run AI Risk & Anomaly Scan" to analyze this proposal against historical pricing benchmarks and corporate spending policies.</p>
+                        </div>
+                    </div>
+
+                    <!-- Audit Trail Section -->
+                    <div class="detail-section">
+                        <div class="section-title">Audit Trail & Governance History</div>
+                        <div class="audit-timeline" id="detailAuditTimeline">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: SAP GENAI COPILOT -->
+        <div id="tab-copilot" class="tab-content">
+            <div class="copilot-container">
+                <div class="copilot-sidebar">
+                    <div class="copilot-sidebar-header">
+                        <h3>SAP AI Core Assistant</h3>
+                        <p>Powered by SAP GenAI Hub Orchestration</p>
+                    </div>
+
+                    <div class="copilot-chips">
+                        <div class="chip-label">Quick Prompts:</div>
+                        <button class="copilot-chip" data-prompt="Which departments are closest to exceeding their budget?">
+                            📊 Department Budget Headroom
+                        </button>
+                        <button class="copilot-chip" data-prompt="Show all high risk requests with vendor pricing anomalies">
+                            ⚠️ Anomaly & Risk Report
+                        </button>
+                        <button class="copilot-chip" data-prompt="Summarize pending approvals that require sign-off">
+                            ⏳ Pending Governance Queue
+                        </button>
+                        <button class="copilot-chip" data-prompt="Analyze vendor performance and high-risk suppliers">
+                            🏢 Supplier Risk Audit
+                        </button>
+                    </div>
+
+                    <div class="copilot-grounding-info">
+                        <div class="grounding-title">Data Grounding Scope</div>
+                        <ul>
+                            <li>✓ CapEx Requests & Line Items</li>
+                            <li>✓ FY2026 Department Budgets</li>
+                            <li>✓ S/4HANA Business Partners</li>
+                            <li>✓ Historical Procurement Benchmarks</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="copilot-chat-area">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message assistant">
+                            <div class="chat-avatar">🤖</div>
+                            <div class="chat-bubble">
+                                <p><strong>Hello! I am your SAP GenAI Copilot for Capital Expenditures.</strong></p>
+                                <p>I continuously monitor procurement requests, scan line items for catalog pricing variances, evaluate departmental budget envelopes, and synthesize executive briefings. How can I help you today?</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-bar">
+                        <input type="text" id="copilotInput" placeholder="Ask about budgets, risk anomalies, approval queues, or supplier ratings...">
+                        <button class="sap-btn sap-btn-primary" id="btnSendCopilot">Send ➔</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: S/4HANA & INTEGRATIONS -->
+        <div id="tab-integrations" class="tab-content">
+            <div class="integrations-container">
+                <div class="section-header-row">
+                    <div>
+                        <h2>SAP BTP Destination Service & System Health</h2>
+                        <p class="text-muted">Live monitoring of external SAP S/4HANA Cloud, AI Core, Event Mesh, and Credential Store endpoints.</p>
+                    </div>
+                    <button class="sap-btn sap-btn-primary" id="btnPingAllDestinations">⚡ Ping All Destinations</button>
+                </div>
+
+                <div class="sap-table-container">
+                    <table class="sap-table" id="destinationsTable">
+                        <thead>
+                            <tr>
+                                <th>System</th>
+                                <th>Destination Name</th>
+                                <th>Protocol / Type</th>
+                                <th>Status</th>
+                                <th>Latency</th>
+                                <th>Synced Records</th>
+                                <th>Last Ping</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="destinationsTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="section-header-row mt-4">
+                    <h3>S/4HANA Purchase Requisition Live Sync Stream</h3>
+                </div>
+                <div class="sync-stream-box" id="s4SyncStreamBox">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: BULK DATA MANAGEMENT -->
+        <div id="tab-bulk" class="tab-content">
+            <div class="bulk-container">
+                <div class="bulk-grid">
+                    <!-- CSV Import Card -->
+                    <div class="sap-card">
+                        <div class="card-header">
+                            <div class="card-title">Bulk Import CapEx Requests (CSV)</div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Upload a CSV file containing multiple CapEx proposals and itemized quotes. The parser validates schema compliance, detects unit price anomalies, and stages the records.</p>
+                            
+                            <div class="file-drop-zone" id="fileDropZone">
+                                <div class="drop-icon">📁</div>
+                                <div class="drop-text">Drag and drop your CapEx CSV file here, or click to browse</div>
+                                <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                            </div>
+
+                            <div class="bulk-actions mt-3">
+                                <button class="sap-btn sap-btn-secondary" id="btnDownloadTemplate">📄 Download Sample CSV Template</button>
+                                <button class="sap-btn sap-btn-primary" id="btnProcessCSV" disabled>🚀 Process and Import Records</button>
+                            </div>
+
+                            <div id="csvValidationFeedback" class="validation-feedback mt-3" style="display: none;">
+                                <!-- Feedback injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export & Data Tools Card -->
+                    <div class="sap-card">
+                        <div class="card-header">
+                            <div class="card-title">Data Export & Archive Tools</div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Export your active CapEx portfolio, itemized line tables, and governance metadata for executive audit review.</p>
+                            
+                            <div class="export-options-list">
+                                <div class="export-row">
+                                    <div>
+                                        <strong>Full Portfolio Export (.CSV)</strong>
+                                        <div class="text-muted text-sm">Includes requests, line items, S/4HANA PR IDs, and risk scores.</div>
+                                    </div>
+                                    <a href="/api/export-csv" class="sap-btn sap-btn-secondary btn-sm" download>⬇️ Download CSV</a>
+                                </div>
+                                <div class="export-row mt-2">
+                                    <div>
+                                        <strong>OData V4 Raw Endpoint (JSON)</strong>
+                                        <div class="text-muted text-sm">Direct programmatic feed for SAP Datasphere or SAP Analytics Cloud.</div>
+                                    </div>
+                                    <a href="/odata/v4/procurement/CapExRequests?$expand=items" target="_blank" class="sap-btn sap-btn-ghost btn-sm">🔗 Open OData V4</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL: NEW CAPEX REQUEST                                              -->
+    <!-- ===================================================================== -->
+    <div class="sap-modal-backdrop" id="modalNewRequest">
+        <div class="sap-modal">
+            <div class="modal-header">
+                <h3>Create New Capital Expenditure (CapEx) Request</h3>
+                <button class="modal-close" id="btnCloseNewModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="newRequestForm">
+                    <div class="form-row">
+                        <div class="form-group col-span-2">
+                            <label>Request Title *</label>
+                            <input type="text" id="newReqTitle" required placeholder="e.g. Next-Gen Factory Edge Servers">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Department *</label>
+                            <select id="newReqDept" required>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Operations">Operations</option>
+                                <option value="IT Infrastructure">IT Infrastructure</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Marketing">Marketing</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Priority *</label>
+                            <select id="newReqPriority">
+                                <option value="MEDIUM">Medium</option>
+                                <option value="HIGH">High</option>
+                                <option value="CRITICAL">Critical</option>
+                                <option value="LOW">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Business Justification & Expected ROI *</label>
+                        <textarea id="newReqJustification" rows="3" required placeholder="Describe the strategic need, operational benefits, and cost-benefit analysis..."></textarea>
+                    </div>
+
+                    <div class="modal-sub-header">
+                        <h4>Itemized Line Items</h4>
+                        <button type="button" class="sap-btn sap-btn-ghost btn-sm" id="btnAddModalItem">➕ Add Line Item</button>
+                    </div>
+
+                    <div id="modalItemsContainer">
+                        <div class="modal-item-row" data-index="0">
+                            <input type="text" class="item-desc" placeholder="Material Description" required value="Server Blade Chassis">
+                            <select class="item-cat">
+                                <option value="Hardware">Hardware</option>
+                                <option value="Software">Software</option>
+                                <option value="Facility">Facility</option>
+                                <option value="Machinery">Machinery</option>
+                                <option value="Consulting">Consulting</option>
+                            </select>
+                            <input type="number" class="item-qty" placeholder="Qty" min="1" value="2" required style="width: 70px;">
+                            <input type="number" class="item-price" placeholder="Unit Price ($)" min="1" value="25000" required style="width: 120px;">
+                            <span class="item-total">$50,000.00</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="sap-btn sap-btn-secondary" id="btnCancelNewModal">Cancel</button>
+                <button type="button" class="sap-btn sap-btn-primary" id="btnSaveNewRequest">Save as Draft</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL: WORKFLOW REJECTION REASON                                      -->
+    <!-- ===================================================================== -->
+    <div class="sap-modal-backdrop" id="modalReject">
+        <div class="sap-modal modal-sm">
+            <div class="modal-header">
+                <h3>Reject CapEx Proposal</h3>
+                <button class="modal-close" id="btnCloseRejectModal">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="text-sm text-muted">Provide a detailed rationale for rejecting this request. The requester will be notified to revise or cancel the proposal.</p>
+                <div class="form-group mt-2">
+                    <label>Rejection Rationale *</label>
+                    <textarea id="rejectReasonText" rows="3" required placeholder="e.g. Unit cost exceeds benchmark by 20%. Please re-quote under corporate MSA agreement."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="sap-btn sap-btn-secondary" id="btnCancelReject">Cancel</button>
+                <button type="button" class="sap-btn sap-btn-danger" id="btnConfirmReject">Confirm Rejection</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
