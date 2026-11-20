@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAP BTP CapEx Procurement & Asset Hub</title>
+    <title>SAP BTP Maroc • Hub Achats, Matériel & Marchés BTP</title>
     <!-- SAP 72 / Horizon Font & Icons -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=72:wght@300;400;600;700&display=swap">
     <link rel="stylesheet" href="styles.css">
@@ -18,71 +18,80 @@
                 <span class="sap-logo-text">SAP</span>
             </div>
             <div class="shellbar-titles">
-                <span class="shellbar-product">Business Technology Platform</span>
-                <span class="shellbar-app">CapEx & Asset Procurement Hub</span>
+                <span class="shellbar-product" id="txtShellbarProduct">SAP BTP Maroc • Bâtiment & Travaux Publics</span>
+                <span class="shellbar-app" id="txtShellbarApp">Hub Investissements Engins & Chantiers</span>
             </div>
         </div>
 
         <div class="shellbar-center">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="globalSearchInput" placeholder="Search requests, materials, cost centers...">
+                <input type="text" id="globalSearchInput" placeholder="Rechercher dossiers, matériel, béton, acier, engins...">
             </div>
         </div>
 
         <div class="shellbar-right">
-            <!-- Simulated BTP Persona Switcher -->
-            <div class="persona-switcher">
-                <label for="personaSelect">Persona:</label>
-                <select id="personaSelect">
-                    <option value="Admin" selected>Sarah Jenkins (Admin / CPO)</option>
-                    <option value="Manager">Alex Rivera (Dept Manager)</option>
-                    <option value="Viewer">David Kim (Viewer / Requester)</option>
+            <!-- Language Selector (FR / EN) -->
+            <div class="lang-switcher">
+                <label for="langSelect">🌐</label>
+                <select id="langSelect" title="Sélectionnez la langue / Select language">
+                    <option value="fr" selected>🇲🇦 Français (Maroc)</option>
+                    <option value="en">🌐 English</option>
                 </select>
             </div>
 
-            <div class="system-status-pill" id="systemHealthBadge" title="BTP Foundation Status">
+            <!-- Simulated BTP Persona Switcher -->
+            <div class="persona-switcher">
+                <label for="personaSelect" id="lblPersona">Rôle BTP :</label>
+                <select id="personaSelect">
+                    <option value="Admin" selected>Youssef Benjelloun (Directeur Marchés & Travaux)</option>
+                    <option value="Manager">Amine El Idrissi (Conducteur Principal de Travaux)</option>
+                    <option value="Viewer">Fatima Zahra Mansouri (Ingénieure Études / Métreur)</option>
+                </select>
+            </div>
+
+            <div class="system-status-pill" id="systemHealthBadge" title="État de la plateforme SAP BTP">
                 <span class="pulse-dot"></span>
-                <span id="healthText">BTP Connected</span>
+                <span id="healthText">BTP Connecté</span>
             </div>
         </div>
     </header>
 
     <!-- ===================================================================== -->
-    <!-- EXECUTIVE KPI METRICS BAR                                             -->
+    <!-- EXECUTIVE KPI METRICS BAR (EN DIRHAMS MAROCAINS - MAD)                -->
     <!-- ===================================================================== -->
     <section class="kpi-banner">
         <div class="kpi-card" id="kpiTotalCapEx">
-            <div class="kpi-title">Committed CapEx</div>
-            <div class="kpi-value" id="valTotalCapEx">$0</div>
-            <div class="kpi-sub" id="subTotalCapEx">Total pipeline value</div>
+            <div class="kpi-title" id="kpiTitle1">Investissements Engagés (MAD)</div>
+            <div class="kpi-value" id="valTotalCapEx">0,00 MAD</div>
+            <div class="kpi-sub" id="subTotalCapEx">Montant total des marchés chantiers</div>
         </div>
 
         <div class="kpi-card" id="kpiBudgetUtil">
-            <div class="kpi-title">Budget Utilization</div>
+            <div class="kpi-title" id="kpiTitle2">Taux d'Engagement Budgétaire</div>
             <div class="kpi-value" id="valBudgetUtil">0%</div>
             <div class="kpi-progress">
                 <div class="progress-bar" id="budgetProgressBar" style="width: 0%;"></div>
             </div>
-            <div class="kpi-sub" id="subBudgetUtil">Of $6.6M Enterprise CapEx</div>
+            <div class="kpi-sub" id="subBudgetUtil">Sur 66,0M MAD Alloués (Exercice 2026)</div>
         </div>
 
         <div class="kpi-card" id="kpiPending">
-            <div class="kpi-title">Pending Governance</div>
+            <div class="kpi-title" id="kpiTitle3">Dossiers en Attente de Visa</div>
             <div class="kpi-value warning" id="valPending">0</div>
-            <div class="kpi-sub">Awaiting Mgr / Finance sign-off</div>
+            <div class="kpi-sub" id="subPending">Visa Conducteur de Travaux / Direction</div>
         </div>
 
         <div class="kpi-card" id="kpiHighRisk">
-            <div class="kpi-title">High-Risk Proposals</div>
+            <div class="kpi-title" id="kpiTitle4">Alertes Barème LPEE & Risques</div>
             <div class="kpi-value danger" id="valHighRisk">0</div>
-            <div class="kpi-sub">AI Anomaly / Price Variance</div>
+            <div class="kpi-sub" id="subHighRisk">Écart prix unitaire ou anomalie technique</div>
         </div>
 
         <div class="kpi-card" id="kpiS4Sync">
-            <div class="kpi-title">S/4HANA Cloud Synced</div>
+            <div class="kpi-title" id="kpiTitle5">Commandes S/4HANA Transmises</div>
             <div class="kpi-value success" id="valS4Sync">0</div>
-            <div class="kpi-sub">Purchase Requisitions released</div>
+            <div class="kpi-sub" id="subS4Sync">Demandes d'Achat (DA) répliquées</div>
         </div>
     </section>
 
@@ -90,20 +99,20 @@
     <!-- SAP ICON TAB BAR NAVIGATION                                           -->
     <!-- ===================================================================== -->
     <nav class="sap-tabbar">
-        <button class="tab-button active" data-tab="tab-dashboard">
-            <span class="tab-icon">📊</span> Executive Analytics
+        <button class="tab-button active" data-tab="tab-dashboard" id="tabBtnDashboard">
+            <span class="tab-icon">📊</span> Tableau de Bord Chantiers
         </button>
-        <button class="tab-button" data-tab="tab-capex">
-            <span class="tab-icon">📋</span> CapEx Requests & Workflows
+        <button class="tab-button" data-tab="tab-capex" id="tabBtnCapex">
+            <span class="tab-icon">🏗️</span> Demandes Matériel & Fournitures
         </button>
-        <button class="tab-button" data-tab="tab-copilot">
-            <span class="tab-icon">🤖</span> SAP GenAI Copilot
+        <button class="tab-button" data-tab="tab-copilot" id="tabBtnCopilot">
+            <span class="tab-icon">🤖</span> Assistant IA BTP Maroc
         </button>
-        <button class="tab-button" data-tab="tab-integrations">
-            <span class="tab-icon">🔄</span> S/4HANA & Destinations
+        <button class="tab-button" data-tab="tab-integrations" id="tabBtnIntegrations">
+            <span class="tab-icon">🔄</span> Connecteurs S/4HANA & ERP
         </button>
-        <button class="tab-button" data-tab="tab-bulk">
-            <span class="tab-icon">📤</span> Bulk Data Center
+        <button class="tab-button" data-tab="tab-bulk" id="tabBtnBulk">
+            <span class="tab-icon">📤</span> Import / Export Données
         </button>
     </nav>
 
@@ -118,8 +127,8 @@
                 <!-- Department Spend vs Budget Chart -->
                 <div class="sap-card col-span-2">
                     <div class="card-header">
-                        <div class="card-title">Department Budget Allocation & Utilization (FY2026)</div>
-                        <span class="badge badge-info">Real-time Persistence</span>
+                        <div class="card-title" id="txtDeptBudgetTitle">Consommation Budgétaire par Pôle de Travaux (Exercice 2026 - MAD)</div>
+                        <span class="badge badge-info">Persistance SAP HANA / SQLite</span>
                     </div>
                     <div class="card-body">
                         <div id="deptAnalyticsList" class="dept-metric-grid">
@@ -131,7 +140,7 @@
                 <!-- CapEx Status Distribution Card -->
                 <div class="sap-card">
                     <div class="card-header">
-                        <div class="card-title">Workflow Status Breakdown</div>
+                        <div class="card-title" id="txtStatusBreakdownTitle">Répartition des Demandes par Statut</div>
                     </div>
                     <div class="card-body">
                         <div id="statusDistribution" class="status-dist-list">
@@ -143,8 +152,8 @@
                 <!-- System Integration Health Card -->
                 <div class="sap-card col-span-3">
                     <div class="card-header">
-                        <div class="card-title">SAP BTP Foundation Connectivity & Integration Monitor</div>
-                        <button class="sap-btn sap-btn-ghost btn-sm" id="btnRefreshIntegrations">🔄 Refresh Status</button>
+                        <div class="card-title" id="txtIntegrationMonitorTitle">Supervision des Connexions SAP BTP & Systèmes Chantiers Maroc</div>
+                        <button class="sap-btn sap-btn-ghost btn-sm" id="btnRefreshIntegrations">🔄 Actualiser l'État</button>
                     </div>
                     <div class="card-body">
                         <div class="integration-cards-grid" id="integrationQuickCards">
@@ -161,45 +170,45 @@
             <div class="sap-toolbar">
                 <div class="toolbar-filters">
                     <div class="filter-item">
-                        <label>Department:</label>
+                        <label id="lblFilterDept">Pôle de Travaux :</label>
                         <select id="filterDepartment">
-                            <option value="ALL">All Departments</option>
-                            <option value="Engineering">Engineering</option>
-                            <option value="Operations">Operations</option>
-                            <option value="IT Infrastructure">IT Infrastructure</option>
-                            <option value="Finance">Finance</option>
-                            <option value="Marketing">Marketing</option>
+                            <option value="ALL">Tous les Pôles de Travaux</option>
+                            <option value="Gros Oeuvre & Batiment">Gros Œuvre & Bâtiment</option>
+                            <option value="Genie Civil & Ouvrages d'Art">Génie Civil & Ouvrages d'Art</option>
+                            <option value="Terrassement & VRD">Terrassement & VRD</option>
+                            <option value="Materiel & Engins Chantiers">Matériel & Engins Chantiers</option>
+                            <option value="Second Oeuvre & Equipements">Second Œuvre & Équipements</option>
                         </select>
                     </div>
 
                     <div class="filter-item">
-                        <label>Status:</label>
+                        <label id="lblFilterStatus">Statut du Dossier :</label>
                         <select id="filterStatus">
-                            <option value="ALL">All Statuses</option>
-                            <option value="DRAFT">Draft</option>
-                            <option value="SUBMITTED">Submitted</option>
-                            <option value="DEPT_APPROVED">Dept Approved</option>
-                            <option value="FINANCE_APPROVED">Finance Approved</option>
-                            <option value="ORDER_CREATED">Order Created (S/4HANA)</option>
-                            <option value="REJECTED">Rejected</option>
+                            <option value="ALL">Tous les Statuts</option>
+                            <option value="DRAFT">Brouillon (DRAFT)</option>
+                            <option value="SUBMITTED">Soumis pour Visa Technique</option>
+                            <option value="DEPT_APPROVED">Validé Conducteur de Travaux</option>
+                            <option value="FINANCE_APPROVED">Visa Financier Accordé</option>
+                            <option value="ORDER_CREATED">Commande S/4HANA Émise</option>
+                            <option value="REJECTED">Dossier Rejeté</option>
                         </select>
                     </div>
 
                     <div class="filter-item">
-                        <label>Priority:</label>
+                        <label id="lblFilterPriority">Priorité Chantier :</label>
                         <select id="filterPriority">
-                            <option value="ALL">All Priorities</option>
-                            <option value="CRITICAL">Critical</option>
-                            <option value="HIGH">High</option>
-                            <option value="MEDIUM">Medium</option>
-                            <option value="LOW">Low</option>
+                            <option value="ALL">Toutes les Priorités</option>
+                            <option value="CRITICAL">Critique (Arrêt de Chantier)</option>
+                            <option value="HIGH">Haute</option>
+                            <option value="MEDIUM">Moyenne</option>
+                            <option value="LOW">Basse</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="toolbar-actions">
-                    <button class="sap-btn sap-btn-primary" id="btnOpenNewRequestModal">➕ New CapEx Request</button>
-                    <button class="sap-btn sap-btn-secondary" id="btnExportCSV">⬇️ Export to CSV</button>
+                    <button class="sap-btn sap-btn-primary" id="btnOpenNewRequestModal">➕ Nouvelle Demande Chantier</button>
+                    <button class="sap-btn sap-btn-secondary" id="btnExportCSV">⬇️ Exporter en CSV</button>
                 </div>
             </div>
 
@@ -208,14 +217,14 @@
                 <table class="sap-table" id="capexTable">
                     <thead>
                         <tr>
-                            <th>Status</th>
-                            <th>Title</th>
-                            <th>Department</th>
-                            <th>Priority</th>
-                            <th>Total Amount</th>
-                            <th>Risk Score</th>
-                            <th>S/4HANA PR #</th>
-                            <th>Actions</th>
+                            <th id="thStatus">Statut</th>
+                            <th id="thTitle">Désignation du Marché / Matériel</th>
+                            <th id="thDept">Pôle de Travaux</th>
+                            <th id="thPriority">Priorité</th>
+                            <th id="thTotal">Montant (MAD)</th>
+                            <th id="thRisk">Indice Risque LPEE</th>
+                            <th id="thS4">N° DA S/4HANA</th>
+                            <th id="thActions">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="capexTableBody">
@@ -228,8 +237,8 @@
             <div class="sap-drawer" id="requestDetailDrawer">
                 <div class="drawer-header">
                     <div>
-                        <div class="drawer-subtitle" id="drawerDeptRequester">Engineering · Dr. Elena Rostova</div>
-                        <h2 class="drawer-title" id="drawerTitle">High-Performance GPU Cluster</h2>
+                        <div class="drawer-subtitle" id="drawerDeptRequester">Gros Œuvre · Youssef Benjelloun</div>
+                        <h2 class="drawer-title" id="drawerTitle">Grue à Tour Liebherr 280 EC-H</h2>
                     </div>
                     <button class="drawer-close" id="btnCloseDrawer">✕</button>
                 </div>
@@ -241,41 +250,41 @@
                 <div class="drawer-body">
                     <div class="detail-overview-grid">
                         <div class="overview-item">
-                            <span class="overview-label">Status</span>
+                            <span class="overview-label" id="lblDetailStatus">Statut Actuel</span>
                             <span id="detailStatusBadge" class="badge">DRAFT</span>
                         </div>
                         <div class="overview-item">
-                            <span class="overview-label">Total Amount</span>
-                            <span class="overview-value" id="detailTotalAmount">$0.00</span>
+                            <span class="overview-label" id="lblDetailAmount">Montant Total</span>
+                            <span class="overview-value" id="detailTotalAmount">0,00 MAD</span>
                         </div>
                         <div class="overview-item">
-                            <span class="overview-label">AI Risk Level</span>
-                            <span id="detailRiskBadge" class="badge">LOW</span>
+                            <span class="overview-label" id="lblDetailRisk">Niveau de Risque</span>
+                            <span id="detailRiskBadge" class="badge">FAIBLE</span>
                         </div>
                         <div class="overview-item">
-                            <span class="overview-label">S/4HANA Document</span>
+                            <span class="overview-label" id="lblDetailS4Doc">Pièce SAP S/4HANA</span>
                             <span class="overview-value text-mono" id="detailS4Pr">-</span>
                         </div>
                     </div>
 
                     <div class="detail-section">
-                        <div class="section-title">Business Justification</div>
+                        <div class="section-title" id="lblDetailJustification">Justification Technique & Objectif Chantier</div>
                         <p class="section-text" id="detailJustification">-</p>
                     </div>
 
                     <!-- Line Items Section -->
                     <div class="detail-section">
-                        <div class="section-title">Itemized Equipment & Services</div>
+                        <div class="section-title" id="lblDetailItemsTitle">Bordereau des Postes, Fournitures & Matériel</div>
                         <table class="sap-table table-sm" id="detailItemsTable">
                             <thead>
                                 <tr>
-                                    <th>Item #</th>
-                                    <th>Description</th>
-                                    <th>Category</th>
-                                    <th>Qty</th>
-                                    <th>Unit Price</th>
-                                    <th>Line Total</th>
-                                    <th>Benchmark Status</th>
+                                    <th>N°</th>
+                                    <th id="thItemDesc">Description Fourniture / Engin</th>
+                                    <th id="thItemCat">Catégorie</th>
+                                    <th id="thItemQty">Quantité</th>
+                                    <th id="thItemPrice">Prix Unitaire (MAD)</th>
+                                    <th id="thItemTotal">Total HT (MAD)</th>
+                                    <th id="thItemBench">Conformité Barème</th>
                                 </tr>
                             </thead>
                             <tbody id="detailItemsBody">
@@ -286,15 +295,15 @@
 
                     <!-- AI Analysis Section -->
                     <div class="detail-section" id="aiAnalysisSection">
-                        <div class="section-title">SAP AI Core / GenAI Hub Evaluation</div>
+                        <div class="section-title" id="lblDetailAiTitle">Évaluation IA & Détection des Anomalies Barème BTP Maroc</div>
                         <div class="ai-box" id="aiEvaluationContent">
-                            <p class="text-muted">Click "Run AI Risk & Anomaly Scan" to analyze this proposal against historical pricing benchmarks and corporate spending policies.</p>
+                            <p class="text-muted" id="txtAiPlaceholder">Cliquez sur « Lancer le Scan IA des Risques & Prix » pour confronter cette proposition aux barèmes historiques LPEE et à la réglementation de construction.</p>
                         </div>
                     </div>
 
                     <!-- Audit Trail Section -->
                     <div class="detail-section">
-                        <div class="section-title">Audit Trail & Governance History</div>
+                        <div class="section-title" id="lblDetailAuditTitle">Piste d'Audit & Historique des Visas</div>
                         <div class="audit-timeline" id="detailAuditTimeline">
                             <!-- Populated dynamically -->
                         </div>
@@ -303,38 +312,38 @@
             </div>
         </div>
 
-        <!-- TAB 3: SAP GENAI COPILOT -->
+        <!-- TAB 3: SAP GENAI COPILOT BTP MAROC -->
         <div id="tab-copilot" class="tab-content">
             <div class="copilot-container">
                 <div class="copilot-sidebar">
                     <div class="copilot-sidebar-header">
-                        <h3>SAP AI Core Assistant</h3>
-                        <p>Powered by SAP GenAI Hub Orchestration</p>
+                        <h3 id="txtCopilotTitle">Assistant IA Chantiers BTP</h3>
+                        <p id="txtCopilotSub">Propulsé par SAP GenAI Hub Maroc & Modèle BTP</p>
                     </div>
 
                     <div class="copilot-chips">
-                        <div class="chip-label">Quick Prompts:</div>
-                        <button class="copilot-chip" data-prompt="Which departments are closest to exceeding their budget?">
-                            📊 Department Budget Headroom
+                        <div class="chip-label" id="txtQuickPromptsLabel">Requêtes Rapides BTP :</div>
+                        <button class="copilot-chip" data-prompt="Quels chantiers ou directions dépassent leur budget alloué ?">
+                            📊 Plafonds Budgétaires des Chantiers
                         </button>
-                        <button class="copilot-chip" data-prompt="Show all high risk requests with vendor pricing anomalies">
-                            ⚠️ Anomaly & Risk Report
+                        <button class="copilot-chip" data-prompt="Identifier les anomalies de prix sur le béton et l'acier Sonasid">
+                            ⚠️ Contrôle Prix Béton & Acier LPEE
                         </button>
-                        <button class="copilot-chip" data-prompt="Summarize pending approvals that require sign-off">
-                            ⏳ Pending Governance Queue
+                        <button class="copilot-chip" data-prompt="Résumer les demandes de matériel en attente de visa financier">
+                            ⏳ Dossiers en Attente de Signature
                         </button>
-                        <button class="copilot-chip" data-prompt="Analyze vendor performance and high-risk suppliers">
-                            🏢 Supplier Risk Audit
+                        <button class="copilot-chip" data-prompt="Analyser la conformité et les risques des fournisseurs BTP au Maroc">
+                            🏢 Audit Fournisseurs (Lafarge, Sonasid, Tractafric)
                         </button>
                     </div>
 
                     <div class="copilot-grounding-info">
-                        <div class="grounding-title">Data Grounding Scope</div>
-                        <ul>
-                            <li>✓ CapEx Requests & Line Items</li>
-                            <li>✓ FY2026 Department Budgets</li>
-                            <li>✓ S/4HANA Business Partners</li>
-                            <li>✓ Historical Procurement Benchmarks</li>
+                        <div class="grounding-title" id="txtGroundingTitle">Périmètre des Données Connectées</div>
+                        <ul id="listGrounding">
+                            <li>✓ Dossiers d'Achats & Postes Matériel Chantiers</li>
+                            <li>✓ Budgets Alloués Exercice 2026 (MAD)</li>
+                            <li>✓ Référentiel Fournisseurs BTP S/4HANA (Maroc)</li>
+                            <li>✓ Barèmes LPEE & Normes NM de Construction</li>
                         </ul>
                     </div>
                 </div>
@@ -344,15 +353,15 @@
                         <div class="chat-message assistant">
                             <div class="chat-avatar">🤖</div>
                             <div class="chat-bubble">
-                                <p><strong>Hello! I am your SAP GenAI Copilot for Capital Expenditures.</strong></p>
-                                <p>I continuously monitor procurement requests, scan line items for catalog pricing variances, evaluate departmental budget envelopes, and synthesize executive briefings. How can I help you today?</p>
+                                <p><strong id="txtChatWelcome">Bonjour ! Je suis votre Copilot IA dédié au Bâtiment et Travaux Publics (BTP) au Maroc.</strong></p>
+                                <p id="txtChatWelcomeSub">Je supervise en temps réel les demandes d'achat pour vos chantiers, détecte les dépassements de barèmes unitaires LPEE (ciment, acier Sonasid, centrales à béton, pelles Caterpillar), analyse les enveloppes budgétaires en Dirhams marocains (MAD) et prépare vos dossiers pour validation S/4HANA. Comment puis-je vous aider aujourd'hui ?</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="chat-input-bar">
-                        <input type="text" id="copilotInput" placeholder="Ask about budgets, risk anomalies, approval queues, or supplier ratings...">
-                        <button class="sap-btn sap-btn-primary" id="btnSendCopilot">Send ➔</button>
+                        <input type="text" id="copilotInput" placeholder="Posez une question sur les budgets chantiers, prix de l'acier Sonasid, béton LafargeHolcim...">
+                        <button class="sap-btn sap-btn-primary" id="btnSendCopilot">Envoyer ➔</button>
                     </div>
                 </div>
             </div>
@@ -363,24 +372,24 @@
             <div class="integrations-container">
                 <div class="section-header-row">
                     <div>
-                        <h2>SAP BTP Destination Service & System Health</h2>
-                        <p class="text-muted">Live monitoring of external SAP S/4HANA Cloud, AI Core, Event Mesh, and Credential Store endpoints.</p>
+                        <h2 id="txtDestinationsHeader">Service Destinations SAP BTP & État des Systèmes BTP</h2>
+                        <p class="text-muted" id="txtDestinationsSub">Surveillance en direct des liaisons SAP S/4HANA Cloud (Société MA01), SAP AI Core, Event Mesh et Credential Store.</p>
                     </div>
-                    <button class="sap-btn sap-btn-primary" id="btnPingAllDestinations">⚡ Ping All Destinations</button>
+                    <button class="sap-btn sap-btn-primary" id="btnPingAllDestinations">⚡ Tester Toutes les Destinations</button>
                 </div>
 
                 <div class="sap-table-container">
                     <table class="sap-table" id="destinationsTable">
                         <thead>
                             <tr>
-                                <th>System</th>
-                                <th>Destination Name</th>
-                                <th>Protocol / Type</th>
-                                <th>Status</th>
-                                <th>Latency</th>
-                                <th>Synced Records</th>
-                                <th>Last Ping</th>
-                                <th>Action</th>
+                                <th id="thDestSystem">Système Connecté</th>
+                                <th id="thDestName">Nom de la Destination BTP</th>
+                                <th id="thDestProto">Protocole / Service</th>
+                                <th id="thDestStatus">État</th>
+                                <th id="thDestLatency">Latence</th>
+                                <th id="thDestRecords">Dossiers Synchronisés</th>
+                                <th id="thDestPing">Dernier Ping</th>
+                                <th id="thDestAction">Action</th>
                             </tr>
                         </thead>
                         <tbody id="destinationsTableBody">
@@ -390,7 +399,7 @@
                 </div>
 
                 <div class="section-header-row mt-4">
-                    <h3>S/4HANA Purchase Requisition Live Sync Stream</h3>
+                    <h3 id="txtSyncStreamTitle">Flux en Direct des Demandes d'Achat Répliquées vers SAP S/4HANA</h3>
                 </div>
                 <div class="sync-stream-box" id="s4SyncStreamBox">
                     <!-- Populated dynamically -->
@@ -405,20 +414,20 @@
                     <!-- CSV Import Card -->
                     <div class="sap-card">
                         <div class="card-header">
-                            <div class="card-title">Bulk Import CapEx Requests (CSV)</div>
+                            <div class="card-title" id="txtCsvImportTitle">Importation Groupée de Demandes Chantiers (CSV)</div>
                         </div>
                         <div class="card-body">
-                            <p class="text-muted">Upload a CSV file containing multiple CapEx proposals and itemized quotes. The parser validates schema compliance, detects unit price anomalies, and stages the records.</p>
+                            <p class="text-muted" id="txtCsvImportSub">Téléversez un fichier CSV contenant plusieurs propositions de matériel et fournitures chantiers. L'analyseur valide la conformité du schéma, contrôle les prix unitaires et intègre les données.</p>
                             
                             <div class="file-drop-zone" id="fileDropZone">
                                 <div class="drop-icon">📁</div>
-                                <div class="drop-text">Drag and drop your CapEx CSV file here, or click to browse</div>
+                                <div class="drop-text" id="txtDropZone">Glissez-déposez votre fichier CSV ici, ou cliquez pour parcourir</div>
                                 <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
                             </div>
 
                             <div class="bulk-actions mt-3">
-                                <button class="sap-btn sap-btn-secondary" id="btnDownloadTemplate">📄 Download Sample CSV Template</button>
-                                <button class="sap-btn sap-btn-primary" id="btnProcessCSV" disabled>🚀 Process and Import Records</button>
+                                <button class="sap-btn sap-btn-secondary" id="btnDownloadTemplate">📄 Télécharger le Modèle CSV BTP</button>
+                                <button class="sap-btn sap-btn-primary" id="btnProcessCSV" disabled>🚀 Valider et Importer les Enregistrements</button>
                             </div>
 
                             <div id="csvValidationFeedback" class="validation-feedback mt-3" style="display: none;">
@@ -430,25 +439,25 @@
                     <!-- Export & Data Tools Card -->
                     <div class="sap-card">
                         <div class="card-header">
-                            <div class="card-title">Data Export & Archive Tools</div>
+                            <div class="card-title" id="txtDataExportTitle">Outils d'Exportation & Archivage de Données BTP</div>
                         </div>
                         <div class="card-body">
-                            <p class="text-muted">Export your active CapEx portfolio, itemized line tables, and governance metadata for executive audit review.</p>
+                            <p class="text-muted" id="txtDataExportSub">Exportez l'intégralité du portefeuille de chantiers, des bordereaux de prix et des historiques de visa pour audit et reporting de direction.</p>
                             
                             <div class="export-options-list">
                                 <div class="export-row">
                                     <div>
-                                        <strong>Full Portfolio Export (.CSV)</strong>
-                                        <div class="text-muted text-sm">Includes requests, line items, S/4HANA PR IDs, and risk scores.</div>
+                                        <strong id="txtExportCsvTitle">Export Complet du Portefeuille Chantiers (.CSV)</strong>
+                                        <div class="text-muted text-sm" id="txtExportCsvDesc">Comprend les demandes, postes chantiers, n° DA S/4HANA et scores de risque.</div>
                                     </div>
-                                    <a href="/api/export-csv" class="sap-btn sap-btn-secondary btn-sm" download>⬇️ Download CSV</a>
+                                    <a href="/api/export-csv" class="sap-btn sap-btn-secondary btn-sm" download id="btnDownloadCsvDirect">⬇️ Télécharger CSV</a>
                                 </div>
                                 <div class="export-row mt-2">
                                     <div>
-                                        <strong>OData V4 Raw Endpoint (JSON)</strong>
-                                        <div class="text-muted text-sm">Direct programmatic feed for SAP Datasphere or SAP Analytics Cloud.</div>
+                                        <strong id="txtOdataFeedTitle">Point d'Accès OData V4 Brut (JSON)</strong>
+                                        <div class="text-muted text-sm" id="txtOdataFeedDesc">Flux programmable direct pour SAP Datasphere ou SAP Analytics Cloud.</div>
                                     </div>
-                                    <a href="/odata/v4/procurement/CapExRequests?$expand=items" target="_blank" class="sap-btn sap-btn-ghost btn-sm">🔗 Open OData V4</a>
+                                    <a href="/odata/v4/procurement/CapExRequests?$expand=items" target="_blank" class="sap-btn sap-btn-ghost btn-sm" id="btnOpenOdataDirect">🔗 Ouvrir OData V4</a>
                                 </div>
                             </div>
                         </div>
@@ -460,73 +469,73 @@
     </main>
 
     <!-- ===================================================================== -->
-    <!-- MODAL: NEW CAPEX REQUEST                                              -->
+    <!-- MODAL: NEW CAPEX REQUEST BTP MAROC                                    -->
     <!-- ===================================================================== -->
     <div class="sap-modal-backdrop" id="modalNewRequest">
         <div class="sap-modal">
             <div class="modal-header">
-                <h3>Create New Capital Expenditure (CapEx) Request</h3>
+                <h3 id="txtModalNewTitle">Créer une Nouvelle Demande d'Investissement / Achat Chantier</h3>
                 <button class="modal-close" id="btnCloseNewModal">✕</button>
             </div>
             <div class="modal-body">
                 <form id="newRequestForm">
                     <div class="form-row">
                         <div class="form-group col-span-2">
-                            <label>Request Title *</label>
-                            <input type="text" id="newReqTitle" required placeholder="e.g. Next-Gen Factory Edge Servers">
+                            <label id="lblNewReqTitle">Désignation du Marché / Matériel *</label>
+                            <input type="text" id="newReqTitle" required placeholder="ex: Lot Acier Sonasid FeE500 pour Viaduc TGV">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Department *</label>
+                            <label id="lblNewReqDept">Pôle de Travaux *</label>
                             <select id="newReqDept" required>
-                                <option value="Engineering">Engineering</option>
-                                <option value="Operations">Operations</option>
-                                <option value="IT Infrastructure">IT Infrastructure</option>
-                                <option value="Finance">Finance</option>
-                                <option value="Marketing">Marketing</option>
+                                <option value="Gros Oeuvre & Batiment">Gros Œuvre & Bâtiment</option>
+                                <option value="Genie Civil & Ouvrages d'Art">Génie Civil & Ouvrages d'Art</option>
+                                <option value="Terrassement & VRD">Terrassement & VRD</option>
+                                <option value="Materiel & Engins Chantiers">Matériel & Engins Chantiers</option>
+                                <option value="Second Oeuvre & Equipements">Second Œuvre & Équipements</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Priority *</label>
+                            <label id="lblNewReqPriority">Priorité Chantier *</label>
                             <select id="newReqPriority">
-                                <option value="MEDIUM">Medium</option>
-                                <option value="HIGH">High</option>
-                                <option value="CRITICAL">Critical</option>
-                                <option value="LOW">Low</option>
+                                <option value="MEDIUM">Moyenne</option>
+                                <option value="HIGH">Haute</option>
+                                <option value="CRITICAL">Critique (Arrêt de Travaux)</option>
+                                <option value="LOW">Basse</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Business Justification & Expected ROI *</label>
-                        <textarea id="newReqJustification" rows="3" required placeholder="Describe the strategic need, operational benefits, and cost-benefit analysis..."></textarea>
+                        <label id="lblNewReqJustification">Justification Technique & Planning d'Amortissement *</label>
+                        <textarea id="newReqJustification" rows="3" required placeholder="Détaillez le besoin sur le chantier, l'estimation des cadencements et l'économie attendue..."></textarea>
                     </div>
 
                     <div class="modal-sub-header">
-                        <h4>Itemized Line Items</h4>
-                        <button type="button" class="sap-btn sap-btn-ghost btn-sm" id="btnAddModalItem">➕ Add Line Item</button>
+                        <h4 id="txtModalItemsHeader">Bordereau des Postes & Fournitures</h4>
+                        <button type="button" class="sap-btn sap-btn-ghost btn-sm" id="btnAddModalItem">➕ Ajouter un Poste</button>
                     </div>
 
                     <div id="modalItemsContainer">
                         <div class="modal-item-row" data-index="0">
-                            <input type="text" class="item-desc" placeholder="Material Description" required value="Server Blade Chassis">
+                            <input type="text" class="item-desc" placeholder="Désignation de la fourniture" required value="Béton Prêt à l'Emploi B25 LafargeHolcim">
                             <select class="item-cat">
-                                <option value="Hardware">Hardware</option>
-                                <option value="Software">Software</option>
-                                <option value="Facility">Facility</option>
-                                <option value="Machinery">Machinery</option>
-                                <option value="Consulting">Consulting</option>
+                                <option value="Hardware">Matériaux (Béton / Acier / Ciment)</option>
+                                <option value="Machinery">Engins & Matériel Lourd</option>
+                                <option value="Facility">Coffrage & Équipement Chantier</option>
+                                <option value="Consulting">Prestations & Essais LPEE</option>
+                                <option value="Software">Systèmes & Télématique</option>
                             </select>
-                            <input type="number" class="item-qty" placeholder="Qty" min="1" value="2" required style="width: 70px;">
-                            <input type="number" class="item-price" placeholder="Unit Price ($)" min="1" value="25000" required style="width: 120px;">
-                            <span class="item-total">$50,000.00</span>
+                            <input type="number" class="item-qty" placeholder="Qté" min="1" value="150" required style="width: 70px;">
+                            <input type="number" class="item-price" placeholder="Prix Unitaire (MAD)" min="1" value="950" required style="width: 150px;">
+                            <span class="item-total">142 500,00 MAD</span>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="sap-btn sap-btn-secondary" id="btnCancelNewModal">Cancel</button>
-                <button type="button" class="sap-btn sap-btn-primary" id="btnSaveNewRequest">Save as Draft</button>
+                <button type="button" class="sap-btn sap-btn-secondary" id="btnCancelNewModal">Annuler</button>
+                <button type="button" class="sap-btn sap-btn-primary" id="btnSaveNewRequest">Enregistrer en Brouillon</button>
             </div>
         </div>
     </div>
@@ -537,19 +546,19 @@
     <div class="sap-modal-backdrop" id="modalReject">
         <div class="sap-modal modal-sm">
             <div class="modal-header">
-                <h3>Reject CapEx Proposal</h3>
+                <h3 id="txtModalRejectTitle">Rejeter la Proposition de Marché BTP</h3>
                 <button class="modal-close" id="btnCloseRejectModal">✕</button>
             </div>
             <div class="modal-body">
-                <p class="text-sm text-muted">Provide a detailed rationale for rejecting this request. The requester will be notified to revise or cancel the proposal.</p>
+                <p class="text-sm text-muted" id="txtModalRejectDesc">Précisez le motif formel du rejet (ex: dépassement barème LPEE, non-conformité technique ou absence de crédit). Le demandeur sera notifié.</p>
                 <div class="form-group mt-2">
-                    <label>Rejection Rationale *</label>
-                    <textarea id="rejectReasonText" rows="3" required placeholder="e.g. Unit cost exceeds benchmark by 20%. Please re-quote under corporate MSA agreement."></textarea>
+                    <label id="lblRejectReason">Motif du Rejet *</label>
+                    <textarea id="rejectReasonText" rows="3" required placeholder="ex: Le prix unitaire dépasse le barème référentiel de 25%. Consulter un négociant agréé."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="sap-btn sap-btn-secondary" id="btnCancelReject">Cancel</button>
-                <button type="button" class="sap-btn sap-btn-danger" id="btnConfirmReject">Confirm Rejection</button>
+                <button type="button" class="sap-btn sap-btn-secondary" id="btnCancelReject">Annuler</button>
+                <button type="button" class="sap-btn sap-btn-danger" id="btnConfirmReject">Confirmer le Rejet</button>
             </div>
         </div>
     </div>

@@ -132,6 +132,25 @@ body {
     gap: 16px;
 }
 
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.lang-switcher select {
+    background: #2B3D52;
+    color: #FFF;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    font-weight: 500;
+}
+
 .persona-switcher {
     display: flex;
     align-items: center;

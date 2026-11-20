@@ -39,28 +39,28 @@ async function request(path, options = {}) {
     return { status: res.status, headers: res.headers, data };
 }
 
-test('API TEST 1: Persona Switcher (Admin, Manager, Viewer)', async () => {
+test('API TEST 1: Persona Switcher BTP Maroc (Admin, Manager, Viewer)', async () => {
     const adminRes = await request('/api/current-user', { role: 'Admin' });
     assert.strictEqual(adminRes.status, 200);
-    assert.strictEqual(adminRes.data.user.name, 'Sarah Jenkins');
+    assert.strictEqual(adminRes.data.user.name, 'Youssef Benjelloun');
     assert.ok(adminRes.data.user.roles.includes('ProcurementAdmin'));
 
     const mgrRes = await request('/api/current-user', { role: 'Manager' });
     assert.strictEqual(mgrRes.status, 200);
-    assert.strictEqual(mgrRes.data.user.name, 'Alex Rivera');
+    assert.strictEqual(mgrRes.data.user.name, 'Amine El Idrissi');
     assert.ok(mgrRes.data.user.roles.includes('ProcurementManager'));
 
     const viewerRes = await request('/api/current-user', { role: 'Viewer' });
     assert.strictEqual(viewerRes.status, 200);
-    assert.strictEqual(viewerRes.data.user.name, 'David Kim');
+    assert.strictEqual(viewerRes.data.user.name, 'Fatima Zahra Mansouri');
     assert.ok(viewerRes.data.user.roles.includes('ProcurementViewer'));
 });
 
-test('API TEST 2: Executive Analytics - Refresh Status & Metrics APIs', async () => {
+test('API TEST 2: Executive Analytics - Refresh Status & Metrics APIs (MAD)', async () => {
     const metricsRes = await request('/odata/v4/procurement/getExecutiveMetrics()');
     assert.strictEqual(metricsRes.status, 200);
     assert.ok(metricsRes.data.totalBudgetAllocated > 0);
-    assert.strictEqual(metricsRes.data.currency, 'USD');
+    assert.strictEqual(metricsRes.data.currency, 'MAD');
 
     const deptRes = await request('/odata/v4/procurement/getDepartmentAnalytics()');
     assert.strictEqual(deptRes.status, 200);
@@ -72,32 +72,32 @@ test('API TEST 2: Executive Analytics - Refresh Status & Metrics APIs', async ()
     assert.ok(intRes.data.value.length >= 4);
 });
 
-test('API TEST 3: New CapEx Request Creation Modal & Save as Draft', async () => {
+test('API TEST 3: New CapEx Request Creation Modal & Save as Draft (BTP Materials)', async () => {
     const payload = {
-        title: 'High-Throughput Edge TPU Acceleration Rack',
-        department: 'Operations',
-        requestedBy: 'sarah.jenkins@enterprise.corp',
+        title: 'Centrale a Beton Mobile 60m3/h Chantier Dakhla',
+        department: 'Gros Oeuvre & Batiment',
+        requestedBy: 'youssef.benjelloun@btp-maroc.ma',
         priority: 'CRITICAL',
         status: 'DRAFT',
-        totalAmount: 140000.00,
-        currency: 'USD',
-        businessJustification: 'Edge machine vision inference on assembly conveyor line.',
+        totalAmount: 1800000.00,
+        currency: 'MAD',
+        businessJustification: 'Fourniture autonome en beton pret a l emploi pour quai portuaire.',
         items: [
             {
                 itemNumber: 10,
-                materialDescription: 'Coral Dual Edge TPU PCIe Modules',
-                category: 'Hardware',
-                quantity: 40,
-                unitPrice: 2000,
-                lineTotal: 80000
+                materialDescription: 'Malaxeur Planétaire Automatisé BTP',
+                category: 'Machinery',
+                quantity: 1,
+                unitPrice: 1200000,
+                lineTotal: 1200000
             },
             {
                 itemNumber: 20,
-                materialDescription: 'Industrial Thermal Vibration Enclosure',
+                materialDescription: 'Silo à Ciment 100T avec Filtre Dépoussiéreur',
                 category: 'Facility',
-                quantity: 1,
-                unitPrice: 60000,
-                lineTotal: 60000
+                quantity: 2,
+                unitPrice: 300000,
+                lineTotal: 600000
             }
         ]
     };
@@ -110,7 +110,7 @@ test('API TEST 3: New CapEx Request Creation Modal & Save as Draft', async () =>
     assert.strictEqual(createRes.status, 201);
     assert.ok(createRes.data.ID);
     assert.strictEqual(createRes.data.status, 'DRAFT');
-    assert.strictEqual(parseFloat(createRes.data.totalAmount), 140000);
+    assert.strictEqual(parseFloat(createRes.data.totalAmount), 1800000);
 
     const getRes = await request(`/odata/v4/procurement/CapExRequests(ID=${createRes.data.ID})?$expand=items`);
     assert.strictEqual(getRes.status, 200);
@@ -121,13 +121,14 @@ test('API TEST 4: Full Multi-Step Workflow Buttons (Submit -> Dept Approve -> Fi
     const createRes = await request('/odata/v4/procurement/CapExRequests', {
         method: 'POST',
         body: JSON.stringify({
-            title: 'Automated Guided Vehicle Fleet Upgrade',
-            department: 'Engineering',
-            requestedBy: 'marcus.vance@enterprise.corp',
+            title: 'Lot Acier FeE500 Sonasid pour Pont Haubans',
+            department: 'Genie Civil & Ouvrages d\'Art',
+            requestedBy: 'amine.elidrissi@btp-maroc.ma',
             priority: 'HIGH',
             status: 'DRAFT',
-            totalAmount: 75000.00,
-            businessJustification: 'Fleet efficiency expansion'
+            totalAmount: 750000.00,
+            currency: 'MAD',
+            businessJustification: 'Armatures haute adhérence pour chevêtres et voussoirs'
         })
     });
     const id = createRes.data.ID;
@@ -145,7 +146,7 @@ test('API TEST 4: Full Multi-Step Workflow Buttons (Submit -> Dept Approve -> Fi
     const deptRes = await request(`/odata/v4/procurement/CapExRequests(ID=${id})/deptApprove`, {
         method: 'POST',
         role: 'Manager',
-        body: JSON.stringify({ comments: 'Director verified budget alignment.' })
+        body: JSON.stringify({ comments: 'Visa technique accordé. Conforme aux cadencements de ferraillage.' })
     });
     assert.strictEqual(deptRes.status, 200);
     assert.strictEqual(deptRes.data.status, 'DEPT_APPROVED');
@@ -154,7 +155,7 @@ test('API TEST 4: Full Multi-Step Workflow Buttons (Submit -> Dept Approve -> Fi
     const finRes = await request(`/odata/v4/procurement/CapExRequests(ID=${id})/financeApprove`, {
         method: 'POST',
         role: 'Admin',
-        body: JSON.stringify({ comments: 'Treasury sign-off granted.' })
+        body: JSON.stringify({ comments: 'Visa financier accordé. Bon pour commande S/4HANA.' })
     });
     assert.strictEqual(finRes.status, 200);
     assert.strictEqual(finRes.data.status, 'FINANCE_APPROVED');
@@ -176,12 +177,12 @@ test('API TEST 5: Reject Request Button & Reason Validation Modal', async () => 
     const createRes = await request('/odata/v4/procurement/CapExRequests', {
         method: 'POST',
         body: JSON.stringify({
-            title: 'Unbudgeted Executive Luxury Vehicle',
-            department: 'Marketing',
-            requestedBy: 'user@corp.local',
+            title: 'Achat Engin de Terrassement Hors Barème',
+            department: 'Terrassement & VRD',
+            requestedBy: 'fatima.mansouri@btp-maroc.ma',
             priority: 'LOW',
             status: 'DRAFT',
-            totalAmount: 110000.00
+            totalAmount: 1100000.00
         })
     });
     const id = createRes.data.ID;
@@ -191,15 +192,15 @@ test('API TEST 5: Reject Request Button & Reason Validation Modal', async () => 
     const rejectRes = await request(`/odata/v4/procurement/CapExRequests(ID=${id})/rejectProposal`, {
         method: 'POST',
         role: 'Admin',
-        body: JSON.stringify({ reason: 'Asset does not qualify under enterprise CapEx depreciation policy.' })
+        body: JSON.stringify({ reason: 'Le tarif unitaire dépasse le barème LPEE de 30%.' })
     });
 
     assert.strictEqual(rejectRes.status, 200);
     assert.strictEqual(rejectRes.data.status, 'REJECTED');
-    assert.strictEqual(rejectRes.data.rejectionReason, 'Asset does not qualify under enterprise CapEx depreciation policy.');
+    assert.strictEqual(rejectRes.data.rejectionReason, 'Le tarif unitaire dépasse le barème LPEE de 30%.');
 });
 
-test('API TEST 6: Button "Run AI Risk & Anomaly Scan"', async () => {
+test('API TEST 6: Button "Run AI Risk & Anomaly Scan" (BTP LPEE Standards)', async () => {
     const listRes = await request('/odata/v4/procurement/CapExRequests?$top=1');
     const firstReq = listRes.data.value[0];
 
@@ -211,32 +212,35 @@ test('API TEST 6: Button "Run AI Risk & Anomaly Scan"', async () => {
     assert.strictEqual(aiRes.status, 200);
     assert.ok(aiRes.data.riskScore >= 0);
     assert.ok(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].includes(aiRes.data.riskRating));
-    assert.ok(aiRes.data.executiveSummary.includes('Executive CapEx Assessment'));
-    assert.ok(aiRes.data.modelUsed.includes('SAP GenAI Hub'));
+    assert.ok(aiRes.data.executiveSummary.includes('Évaluation Décisionnelle BTP'));
+    assert.ok(aiRes.data.modelUsed.includes('SAP GenAI Hub Maroc'));
 });
 
-test('API TEST 7: SAP GenAI Copilot Chips & Custom Q&A Button', async () => {
+test('API TEST 7: SAP GenAI Copilot Chips & Custom Q&A Button (French BTP Queries)', async () => {
+    // Quick Prompt Chip 1: Budget Headroom
     const chip1 = await request('/odata/v4/procurement/copilotQuery', {
         method: 'POST',
-        body: JSON.stringify({ prompt: 'Which departments are closest to exceeding their budget?' })
+        body: JSON.stringify({ prompt: 'Quels chantiers ou directions dépassent leur budget alloué ?' })
     });
     assert.strictEqual(chip1.status, 200);
-    assert.ok(chip1.data.reply.includes('Operations'));
+    assert.ok(chip1.data.reply.includes('Génie Civil') || chip1.data.reply.includes('Genie Civil'));
     assert.strictEqual(chip1.data.confidenceScore, 0.94);
 
+    // Quick Prompt Chip 2: High Risk Proposals
     const chip2 = await request('/odata/v4/procurement/copilotQuery', {
         method: 'POST',
-        body: JSON.stringify({ prompt: 'Show all high risk requests with vendor pricing anomalies' })
+        body: JSON.stringify({ prompt: 'Identifier les anomalies de prix sur le béton et l\'acier Sonasid' })
     });
     assert.strictEqual(chip2.status, 200);
-    assert.ok(chip2.data.reply.includes('Risk Governance Report'));
+    assert.ok(chip2.data.reply.includes('Gouvernance des Risques BTP'));
 
+    // Custom Query: Supplier audit
     const custom = await request('/odata/v4/procurement/copilotQuery', {
         method: 'POST',
-        body: JSON.stringify({ prompt: 'Analyze vendor performance and high-risk suppliers' })
+        body: JSON.stringify({ prompt: 'Analyser la conformité et les risques des fournisseurs BTP au Maroc' })
     });
     assert.strictEqual(custom.status, 200);
-    assert.ok(custom.data.reply.includes('Dell Technologies'));
+    assert.ok(custom.data.reply.includes('LafargeHolcim') || custom.data.reply.includes('Sonasid'));
 });
 
 test('API TEST 8: S/4HANA Destination Buttons (Ping All & Single Ping)', async () => {
@@ -253,14 +257,14 @@ test('API TEST 8: S/4HANA Destination Buttons (Ping All & Single Ping)', async (
     }
 });
 
-test('API TEST 9: Bulk Data Center Buttons (Export CSV & Import CSV)', async () => {
+test('API TEST 9: Bulk Data Center Buttons (Export CSV & Import CSV in MAD)', async () => {
     const exportRes = await request('/api/export-csv');
     assert.strictEqual(exportRes.status, 200);
     assert.ok(exportRes.headers.get('content-type').includes('text/csv'));
     assert.ok(exportRes.data.includes('RequestID,Title,Department'));
 
     const csvContent = `title,department,requestedBy,priority,businessJustification,materialDescription,category,quantity,unitPrice\n` +
-        `"Industrial Optical Sort Machine","Operations","marcus@corp.local","HIGH","Defect sorting","Laser Optical Spectrometer","Machinery",1,55000`;
+        `"Béton B30 Spécial Tablier Viaduc","Genie Civil & Ouvrages d'Art","amine.elidrissi@btp-maroc.ma","HIGH","Coulage tablier viaduc","Béton B30 LafargeHolcim Hydrofuge","Hardware",200,1050`;
 
     const importRes = await request('/odata/v4/procurement/importCapExCSV', {
         method: 'POST',

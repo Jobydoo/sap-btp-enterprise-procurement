@@ -1,10 +1,11 @@
 /**
- * SAP BTP CapEx Procurement & Asset Hub - Frontend Controller
- * Implements Fiori Horizon UX, OData V4 consumption, and BTP RBAC Simulation
+ * SAP BTP Maroc • Hub Achats, Matériel & Marchés BTP
+ * Contrôleur Frontend Fiori Horizon UX avec Support Bilingue (Français 🇲🇦 / English 🌐)
  */
 
 // Application State
 const AppState = {
+    language: localStorage.getItem('sap_btp_lang') || 'fr',
     userRole: 'Admin', // Admin, Manager, Viewer
     currentTab: 'tab-dashboard',
     requests: [],
@@ -15,10 +16,143 @@ const AppState = {
     rejectionTargetId: null
 };
 
-// Helper: Format Currency
-function formatCurrency(amount, currency = 'USD') {
+// =============================================================================
+// I18N DICTIONARY (FRANÇAIS BTP MAROC / ENGLISH)
+// =============================================================================
+const i18n = {
+    fr: {
+        shellProduct: "SAP BTP Maroc • Bâtiment & Travaux Publics",
+        shellApp: "Hub Investissements Engins & Chantiers",
+        searchPlaceholder: "Rechercher dossiers, matériel, béton, acier, engins...",
+        lblPersona: "Rôle BTP :",
+        btpConnected: "BTP Connecté",
+        kpiTitle1: "Investissements Engagés (MAD)",
+        subTotalCapEx: "Montant total des marchés chantiers",
+        kpiTitle2: "Taux d'Engagement Budgétaire",
+        subBudgetUtil: "Sur 66,0M MAD Alloués (Exercice 2026)",
+        kpiTitle3: "Dossiers en Attente de Visa",
+        subPending: "Visa Conducteur de Travaux / Direction",
+        kpiTitle4: "Alertes Barème LPEE & Risques",
+        subHighRisk: "Écart prix unitaire ou anomalie technique",
+        kpiTitle5: "Commandes S/4HANA Transmises",
+        subS4Sync: "Demandes d'Achat (DA) répliquées",
+        tabDashboard: "📊 Tableau de Bord Chantiers",
+        tabCapex: "🏗️ Demandes Matériel & Fournitures",
+        tabCopilot: "🤖 Assistant IA BTP Maroc",
+        tabIntegrations: "🔄 Connecteurs S/4HANA & ERP",
+        tabBulk: "📤 Import / Export Données",
+        deptBudgetTitle: "Consommation Budgétaire par Pôle de Travaux (Exercice 2026 - MAD)",
+        statusBreakdownTitle: "Répartition des Demandes par Statut",
+        integrationMonitorTitle: "Supervision des Connexions SAP BTP & Systèmes Chantiers Maroc",
+        btnRefresh: "🔄 Actualiser l'État",
+        lblFilterDept: "Pôle de Travaux :",
+        allDepts: "Tous les Pôles de Travaux",
+        lblFilterStatus: "Statut du Dossier :",
+        allStatuses: "Tous les Statuts",
+        lblFilterPriority: "Priorité Chantier :",
+        allPriorities: "Toutes les Priorités",
+        btnNewRequest: "➕ Nouvelle Demande Chantier",
+        btnExportCsv: "⬇️ Exporter en CSV",
+        thStatus: "Statut",
+        thTitle: "Désignation du Marché / Matériel",
+        thDept: "Pôle de Travaux",
+        thPriority: "Priorité",
+        thTotal: "Montant (MAD)",
+        thRisk: "Indice Risque LPEE",
+        thS4: "N° DA S/4HANA",
+        thActions: "Actions",
+        statusDraft: "Brouillon",
+        statusSubmitted: "Soumis pour Visa",
+        statusDeptApproved: "Validé Technique",
+        statusFinanceApproved: "Visa Financier",
+        statusOrderCreated: "Commande S/4HANA",
+        statusRejected: "Rejeté",
+        btnSubmit: "📤 Soumettre pour Visa Technique",
+        btnDeptApprove: "✅ Accorder Visa Conducteur Travaux",
+        btnFinanceApprove: "💼 Visa Direction Générale & Financière",
+        btnReject: "❌ Rejeter la Proposition",
+        btnSyncS4: "🔄 Transmettre Bon de Commande SAP S/4HANA",
+        btnRunAi: "🤖 Lancer le Scan IA des Risques & Prix",
+        toastPersonaSwitch: "Rôle actif modifié :",
+        toastSubmitted: "Dossier transmis au conducteur de travaux avec succès !",
+        toastDeptApproved: "Visa technique accordé par le conducteur de travaux !",
+        toastFinanceApproved: "Visa financier accordé. Bon pour commande S/4HANA !",
+        toastRejected: "Dossier rejeté et retourné au métreur avec réserves.",
+        toastS4Synced: "Commande transmise avec succès à SAP S/4HANA (Filiale MA01) !",
+        toastAiDone: "Scan IA terminé : Analyse des barèmes LPEE effectuée.",
+        toastCsvSuccess: "dossier(s) BTP importé(s) avec succès !"
+    },
+    en: {
+        shellProduct: "SAP BTP • Moroccan Construction & Civil Works",
+        shellApp: "CapEx Equipment & Works Procurement Hub",
+        searchPlaceholder: "Search requests, materials, concrete, steel, machinery...",
+        lblPersona: "BTP Persona:",
+        btpConnected: "BTP Connected",
+        kpiTitle1: "Committed CapEx (MAD)",
+        subTotalCapEx: "Total works contract pipeline value",
+        kpiTitle2: "Budget Utilization Rate",
+        subBudgetUtil: "Of 66.0M MAD Allocated (FY2026)",
+        kpiTitle3: "Pending Governance Queue",
+        subPending: "Awaiting Site Mgr / Finance sign-off",
+        kpiTitle4: "LPEE Pricing Alerts & Risks",
+        subHighRisk: "Unit price variance or technical anomaly",
+        kpiTitle5: "S/4HANA Orders Synced",
+        subS4Sync: "Purchase Requisitions released",
+        tabDashboard: "📊 Executive Analytics",
+        tabCapex: "🏗️ CapEx Requests & Workflows",
+        tabCopilot: "🤖 Moroccan BTP AI Copilot",
+        tabIntegrations: "🔄 S/4HANA & Destinations",
+        tabBulk: "📤 Bulk Data Center",
+        deptBudgetTitle: "Works Division Budget Allocation & Utilization (FY2026 - MAD)",
+        statusBreakdownTitle: "Workflow Status Breakdown",
+        integrationMonitorTitle: "SAP BTP Foundation Connectivity & Site Systems Monitor",
+        btnRefresh: "🔄 Refresh Status",
+        lblFilterDept: "Works Division:",
+        allDepts: "All Works Divisions",
+        lblFilterStatus: "Workflow Status:",
+        allStatuses: "All Statuses",
+        lblFilterPriority: "Site Priority:",
+        allPriorities: "All Priorities",
+        btnNewRequest: "➕ New CapEx Request",
+        btnExportCsv: "⬇️ Export to CSV",
+        thStatus: "Status",
+        thTitle: "Contract Description / Material",
+        thDept: "Works Division",
+        thPriority: "Priority",
+        thTotal: "Total Amount (MAD)",
+        thRisk: "LPEE Risk Score",
+        thS4: "S/4HANA PR #",
+        thActions: "Actions",
+        statusDraft: "Draft",
+        statusSubmitted: "Submitted",
+        statusDeptApproved: "Technical Approved",
+        statusFinanceApproved: "Finance Approved",
+        statusOrderCreated: "S/4HANA Order Created",
+        statusRejected: "Rejected",
+        btnSubmit: "📤 Submit for Technical Review",
+        btnDeptApprove: "✅ Approve as Site Manager",
+        btnFinanceApprove: "💼 Executive Finance Sign-off",
+        btnReject: "❌ Reject Proposal",
+        btnSyncS4: "🔄 Release Purchase Order to S/4HANA",
+        btnRunAi: "🤖 Run AI Risk & LPEE Benchmark Scan",
+        toastPersonaSwitch: "Active BTP persona switched to:",
+        toastSubmitted: "CapEx proposal submitted for technical review!",
+        toastDeptApproved: "Site manager technical approval granted!",
+        toastFinanceApproved: "Executive finance approval granted. Ready for S/4HANA!",
+        toastRejected: "Proposal rejected with governance comments.",
+        toastS4Synced: "Purchase requisition released to SAP S/4HANA (MA01)!",
+        toastAiDone: "AI evaluation complete: LPEE benchmark scan finished.",
+        toastCsvSuccess: "CapEx request(s) successfully imported!"
+    }
+};
+
+// Helper: Format Currency in Dirhams (MAD)
+function formatCurrency(amount, currency = 'MAD') {
     const val = parseFloat(amount) || 0;
-    return '$' + val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (AppState.language === 'en') {
+        return val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MAD';
+    }
+    return val.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MAD';
 }
 
 // Helper: Format Date
@@ -26,7 +160,8 @@ function formatDate(dateStr) {
     if (!dateStr) return '-';
     try {
         const d = new Date(dateStr);
-        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const locale = AppState.language === 'fr' ? 'fr-FR' : 'en-US';
+        return d.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     } catch {
         return dateStr;
     }
@@ -59,11 +194,81 @@ async function odataFetch(url, options = {}) {
 // INITIALIZATION
 // =============================================================================
 document.addEventListener('DOMContentLoaded', async () => {
+    setupLanguageSelector();
     setupTabNavigation();
     setupPersonaSwitcher();
     setupEventListeners();
+    applyLanguageTranslations();
     await refreshAllData();
 });
+
+// Setup Language Selector
+function setupLanguageSelector() {
+    const select = document.getElementById('langSelect');
+    if (!select) return;
+    select.value = AppState.language;
+    select.addEventListener('change', (e) => {
+        AppState.language = e.target.value;
+        localStorage.setItem('sap_btp_lang', AppState.language);
+        applyLanguageTranslations();
+        renderKpiBanner(AppState.metrics);
+        applyFilters();
+        if (AppState.selectedRequest) {
+            renderDrawerOverview(AppState.selectedRequest);
+            renderDrawerActions(AppState.selectedRequest);
+        }
+        showToast(AppState.language === 'fr' ? 'Langue changée : Français (Maroc)' : 'Language switched: English');
+    });
+}
+
+function applyLanguageTranslations() {
+    const t = i18n[AppState.language] || i18n.fr;
+
+    // Shellbar
+    const txtProduct = document.getElementById('txtShellbarProduct');
+    if (txtProduct) txtProduct.textContent = t.shellProduct;
+    const txtApp = document.getElementById('txtShellbarApp');
+    if (txtApp) txtApp.textContent = t.shellApp;
+    const searchInput = document.getElementById('globalSearchInput');
+    if (searchInput) searchInput.placeholder = t.searchPlaceholder;
+    const lblPersona = document.getElementById('lblPersona');
+    if (lblPersona) lblPersona.textContent = t.lblPersona;
+    const healthText = document.getElementById('healthText');
+    if (healthText) healthText.textContent = t.btpConnected;
+
+    // KPI Banner
+    const k1 = document.getElementById('kpiTitle1'); if (k1) k1.textContent = t.kpiTitle1;
+    const k2 = document.getElementById('kpiTitle2'); if (k2) k2.textContent = t.kpiTitle2;
+    const k3 = document.getElementById('kpiTitle3'); if (k3) k3.textContent = t.kpiTitle3;
+    const k4 = document.getElementById('kpiTitle4'); if (k4) k4.textContent = t.kpiTitle4;
+    const k5 = document.getElementById('kpiTitle5'); if (k5) k5.textContent = t.kpiTitle5;
+    const s1 = document.getElementById('subTotalCapEx'); if (s1) s1.textContent = t.subTotalCapEx;
+    const s2 = document.getElementById('subBudgetUtil'); if (s2) s2.textContent = t.subBudgetUtil;
+    const s3 = document.getElementById('subPending'); if (s3) s3.textContent = t.subPending;
+    const s4 = document.getElementById('subHighRisk'); if (s4) s4.textContent = t.subHighRisk;
+    const s5 = document.getElementById('subS4Sync'); if (s5) s5.textContent = t.subS4Sync;
+
+    // Tab buttons
+    const tBtn1 = document.getElementById('tabBtnDashboard'); if (tBtn1) tBtn1.innerHTML = `<span class="tab-icon">📊</span> ${t.tabDashboard.replace('📊 ', '')}`;
+    const tBtn2 = document.getElementById('tabBtnCapex'); if (tBtn2) tBtn2.innerHTML = `<span class="tab-icon">🏗️</span> ${t.tabCapex.replace('🏗️ ', '')}`;
+    const tBtn3 = document.getElementById('tabBtnCopilot'); if (tBtn3) tBtn3.innerHTML = `<span class="tab-icon">🤖</span> ${t.tabCopilot.replace('🤖 ', '')}`;
+    const tBtn4 = document.getElementById('tabBtnIntegrations'); if (tBtn4) tBtn4.innerHTML = `<span class="tab-icon">🔄</span> ${t.tabIntegrations.replace('🔄 ', '')}`;
+    const tBtn5 = document.getElementById('tabBtnBulk'); if (tBtn5) tBtn5.innerHTML = `<span class="tab-icon">📤</span> ${t.tabBulk.replace('📤 ', '')}`;
+
+    // Toolbar
+    const bNew = document.getElementById('btnOpenNewRequestModal'); if (bNew) bNew.textContent = t.btnNewRequest;
+    const bExp = document.getElementById('btnExportCSV'); if (bExp) bExp.textContent = t.btnExportCsv;
+
+    // Table Headers
+    const thS = document.getElementById('thStatus'); if (thS) thS.textContent = t.thStatus;
+    const thT = document.getElementById('thTitle'); if (thT) thT.textContent = t.thTitle;
+    const thD = document.getElementById('thDept'); if (thD) thD.textContent = t.thDept;
+    const thP = document.getElementById('thPriority'); if (thP) thP.textContent = t.thPriority;
+    const thTot = document.getElementById('thTotal'); if (thTotal) thTot.textContent = t.thTotal;
+    const thR = document.getElementById('thRisk'); if (thR) thR.textContent = t.thRisk;
+    const thS4 = document.getElementById('thS4'); if (thS4) thS4.textContent = t.thS4;
+    const thA = document.getElementById('thActions'); if (thA) thA.textContent = t.thActions;
+}
 
 // Setup Fiori Icon Tab Bar
 function setupTabNavigation() {
@@ -88,7 +293,8 @@ function setupPersonaSwitcher() {
     const select = document.getElementById('personaSelect');
     select.addEventListener('change', async (e) => {
         AppState.userRole = e.target.value;
-        showToast(`Switched active BTP persona to: ${e.target.selectedOptions[0].text}`);
+        const t = i18n[AppState.language] || i18n.fr;
+        showToast(`${t.toastPersonaSwitch} ${e.target.selectedOptions[0].text}`);
         if (AppState.selectedRequest) {
             renderDrawerActions(AppState.selectedRequest);
         }
@@ -98,32 +304,26 @@ function setupPersonaSwitcher() {
 
 // Setup Event Listeners
 function setupEventListeners() {
-    // Search
     document.getElementById('globalSearchInput').addEventListener('input', applyFilters);
     document.getElementById('filterDepartment').addEventListener('change', applyFilters);
     document.getElementById('filterStatus').addEventListener('change', applyFilters);
     document.getElementById('filterPriority').addEventListener('change', applyFilters);
 
-    // Refresh Integrations
     document.getElementById('btnRefreshIntegrations').addEventListener('click', fetchIntegrationsData);
     document.getElementById('btnPingAllDestinations').addEventListener('click', pingAllDestinations);
 
-    // Drawer Close
     document.getElementById('btnCloseDrawer').addEventListener('click', closeDetailDrawer);
 
-    // New Request Modal
     document.getElementById('btnOpenNewRequestModal').addEventListener('click', openNewRequestModal);
     document.getElementById('btnCloseNewModal').addEventListener('click', closeNewRequestModal);
     document.getElementById('btnCancelNewModal').addEventListener('click', closeNewRequestModal);
     document.getElementById('btnAddModalItem').addEventListener('click', addModalLineItem);
     document.getElementById('btnSaveNewRequest').addEventListener('click', saveNewRequest);
 
-    // Rejection Modal
     document.getElementById('btnCloseRejectModal').addEventListener('click', closeRejectModal);
     document.getElementById('btnCancelReject').addEventListener('click', closeRejectModal);
     document.getElementById('btnConfirmReject').addEventListener('click', confirmRejection);
 
-    // Copilot
     document.getElementById('btnSendCopilot').addEventListener('click', sendCopilotMessage);
     document.getElementById('copilotInput').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') sendCopilotMessage();
@@ -137,7 +337,6 @@ function setupEventListeners() {
         });
     });
 
-    // CSV Bulk Tools
     const dropZone = document.getElementById('fileDropZone');
     const fileInput = document.getElementById('csvFileInput');
 
@@ -244,15 +443,15 @@ function renderDepartmentAnalytics(deptList) {
         row.className = 'dept-metric-row';
         row.innerHTML = `
             <div class="dept-metric-header">
-                <span>${dept.department}</span>
-                <span>${percent}% Utilized (${formatCurrency(dept.totalCommitted)} / ${formatCurrency(dept.totalAllocated)})</span>
+                <span><strong>${dept.department}</strong></span>
+                <span>${percent}% Engagé (${formatCurrency(dept.totalCommitted)} / ${formatCurrency(dept.totalAllocated)})</span>
             </div>
             <div class="dept-bar-track">
                 <div class="dept-bar-fill" style="width: ${percent}%; background-color: ${colorClass};"></div>
             </div>
             <div class="dept-metric-stats">
-                <span>Pending Approvals: <strong>${dept.pendingCount}</strong></span>
-                <span>Approved / S4 Synced: <strong>${dept.approvedCount}</strong></span>
+                <span>Dossiers suivis : <strong>${dept.requestCount || 0}</strong></span>
+                <span>Taux de consommation : <strong>${percent}%</strong></span>
             </div>
         `;
         container.appendChild(row);
@@ -274,32 +473,36 @@ function renderStatusDistribution() {
     });
 
     const container = document.getElementById('statusDistribution');
-    container.innerHTML = `
-        <div class="status-dist-item">
-            <span><span class="badge badge-draft">DRAFT</span> In Preparation</span>
-            <strong>${counts.DRAFT}</strong>
-        </div>
-        <div class="status-dist-item">
-            <span><span class="badge badge-submitted">SUBMITTED</span> Awaiting Dept Mgr</span>
-            <strong>${counts.SUBMITTED}</strong>
-        </div>
-        <div class="status-dist-item">
-            <span><span class="badge badge-dept_approved">DEPT_APPROVED</span> Awaiting Finance</span>
-            <strong>${counts.DEPT_APPROVED}</strong>
-        </div>
-        <div class="status-dist-item">
-            <span><span class="badge badge-finance_approved">FINANCE_APPROVED</span> Ready for S/4HANA</span>
-            <strong>${counts.FINANCE_APPROVED}</strong>
-        </div>
-        <div class="status-dist-item">
-            <span><span class="badge badge-order_created">ORDER_CREATED</span> S/4HANA PR Synced</span>
-            <strong>${counts.ORDER_CREATED}</strong>
-        </div>
-        <div class="status-dist-item">
-            <span><span class="badge badge-rejected">REJECTED</span> Rework Required</span>
-            <strong>${counts.REJECTED}</strong>
-        </div>
-    `;
+    container.innerHTML = '';
+
+    const t = i18n[AppState.language] || i18n.fr;
+    const statusLabels = {
+        DRAFT: t.statusDraft,
+        SUBMITTED: t.statusSubmitted,
+        DEPT_APPROVED: t.statusDeptApproved,
+        FINANCE_APPROVED: t.statusFinanceApproved,
+        ORDER_CREATED: t.statusOrderCreated,
+        REJECTED: t.statusRejected
+    };
+
+    const statusBadges = {
+        DRAFT: 'badge-draft',
+        SUBMITTED: 'badge-submitted',
+        DEPT_APPROVED: 'badge-dept_approved',
+        FINANCE_APPROVED: 'badge-finance_approved',
+        ORDER_CREATED: 'badge-order_created',
+        REJECTED: 'badge-rejected'
+    };
+
+    Object.keys(counts).forEach(st => {
+        const row = document.createElement('div');
+        row.className = 'status-dist-item';
+        row.innerHTML = `
+            <span class="badge ${statusBadges[st]}">${statusLabels[st]}</span>
+            <span class="status-dist-count">${counts[st]}</span>
+        `;
+        container.appendChild(row);
+    });
 }
 
 function applyFilters() {
@@ -310,10 +513,10 @@ function applyFilters() {
 
     const filtered = AppState.requests.filter(r => {
         const matchesSearch = !search ||
-            r.title.toLowerCase().includes(search) ||
-            r.department.toLowerCase().includes(search) ||
-            r.requestedBy.toLowerCase().includes(search) ||
-            (r.s4PrNumber && r.s4PrNumber.toLowerCase().includes(search));
+            (r.title && r.title.toLowerCase().includes(search)) ||
+            (r.department && r.department.toLowerCase().includes(search)) ||
+            (r.s4PrNumber && r.s4PrNumber.toLowerCase().includes(search)) ||
+            (r.requestedBy && r.requestedBy.toLowerCase().includes(search));
 
         const matchesDept = dept === 'ALL' || r.department === dept;
         const matchesStatus = status === 'ALL' || r.status === status;
@@ -322,73 +525,77 @@ function applyFilters() {
         return matchesSearch && matchesDept && matchesStatus && matchesPriority;
     });
 
-    renderCapExTable(filtered);
+    renderRequestsTable(filtered);
 }
 
-function renderCapExTable(requests) {
+function renderRequestsTable(records) {
     const tbody = document.getElementById('capexTableBody');
     tbody.innerHTML = '';
 
-    if (!requests.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted" style="padding: 24px;">No CapEx requests matching the selected filters.</td></tr>`;
+    if (!records.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted" style="padding: 24px;">Aucun marché ou demande BTP trouvée pour ces critères.</td></tr>`;
         return;
     }
 
-    requests.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.onclick = () => openDetailDrawer(r.ID);
+    const t = i18n[AppState.language] || i18n.fr;
+    const statusLabels = {
+        DRAFT: t.statusDraft,
+        SUBMITTED: t.statusSubmitted,
+        DEPT_APPROVED: t.statusDeptApproved,
+        FINANCE_APPROVED: t.statusFinanceApproved,
+        ORDER_CREATED: t.statusOrderCreated,
+        REJECTED: t.statusRejected
+    };
 
-        const badgeClass = `badge-${r.status.toLowerCase()}`;
-        const riskClass = r.riskLevel === 'CRITICAL' || r.riskLevel === 'HIGH' ? 'badge-danger' : (r.riskLevel === 'MEDIUM' ? 'badge-warning' : 'badge-draft');
+    records.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.onclick = (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                openDetailDrawer(r.ID);
+            }
+        };
+
+        const statusClass = `badge-${r.status.toLowerCase()}`;
+        const riskBadge = getRiskBadge(r.riskScore, r.riskLevel);
+        const s4Cell = r.s4PrNumber
+            ? `<span class="badge badge-order_created text-mono">${r.s4PrNumber}</span>`
+            : `<span class="text-muted">-</span>`;
 
         tr.innerHTML = `
-            <td><span class="badge ${badgeClass}">${r.status}</span></td>
-            <td><strong>${r.title}</strong></td>
+            <td><span class="badge ${statusClass}">${statusLabels[r.status] || r.status}</span></td>
+            <td><strong>${r.title}</strong><div class="text-muted text-sm">${r.requestedBy}</div></td>
             <td>${r.department}</td>
-            <td><span class="badge badge-draft">${r.priority}</span></td>
-            <td><strong>${formatCurrency(r.totalAmount, r.currency)}</strong></td>
-            <td><span class="badge ${riskClass}">${r.riskLevel} (${r.riskScore || 0})</span></td>
-            <td><span class="text-mono">${r.s4PrNumber || '-'}</span></td>
-            <td><button class="sap-btn sap-btn-ghost btn-sm" onclick="event.stopPropagation(); openDetailDrawer('${r.ID}')">View ➔</button></td>
+            <td><span class="badge badge-priority-${r.priority.toLowerCase()}">${r.priority}</span></td>
+            <td><strong>${formatCurrency(r.totalAmount)}</strong></td>
+            <td>${riskBadge}</td>
+            <td>${s4Cell}</td>
+            <td><button class="sap-btn sap-btn-ghost btn-sm" onclick="openDetailDrawer('${r.ID}')">Ouvrir ➔</button></td>
         `;
         tbody.appendChild(tr);
     });
 }
 
+function getRiskBadge(score, level) {
+    const s = parseFloat(score) || 15;
+    if (s >= 70 || level === 'CRITICAL') return `<span class="badge badge-danger">CRITIQUE (${s})</span>`;
+    if (s >= 45 || level === 'HIGH') return `<span class="badge badge-warning">ÉLEVÉ (${s})</span>`;
+    if (s >= 25 || level === 'MEDIUM') return `<span class="badge badge-info">MOYEN (${s})</span>`;
+    return `<span class="badge badge-finance_approved">FAIBLE (${s})</span>`;
+}
+
 // =============================================================================
-// OBJECT PAGE / DETAIL DRAWER
+// DETAIL DRAWER
 // =============================================================================
-async function openDetailDrawer(requestId) {
-    const req = AppState.requests.find(r => r.ID === requestId);
+function openDetailDrawer(id) {
+    const req = AppState.requests.find(r => r.ID === id);
     if (!req) return;
+
     AppState.selectedRequest = req;
-
-    document.getElementById('drawerTitle').textContent = req.title;
-    document.getElementById('drawerDeptRequester').textContent = `${req.department} · Requested by ${req.requestedBy}`;
-    document.getElementById('detailTotalAmount').textContent = formatCurrency(req.totalAmount, req.currency);
-    document.getElementById('detailJustification').textContent = req.businessJustification || 'No justification provided.';
-    document.getElementById('detailS4Pr').textContent = req.s4PrNumber || 'Not Synced to S/4HANA yet';
-
-    // Status & Risk Badges
-    const statusBadge = document.getElementById('detailStatusBadge');
-    statusBadge.className = `badge badge-${req.status.toLowerCase()}`;
-    statusBadge.textContent = req.status;
-
-    const riskBadge = document.getElementById('detailRiskBadge');
-    const riskClass = req.riskLevel === 'CRITICAL' || req.riskLevel === 'HIGH' ? 'badge-danger' : (req.riskLevel === 'MEDIUM' ? 'badge-warning' : 'badge-draft');
-    riskBadge.className = `badge ${riskClass}`;
-    riskBadge.textContent = `${req.riskLevel} (${req.riskScore || 0}/100)`;
-
-    // Render Actions Bar based on current status and user persona
+    renderDrawerOverview(req);
     renderDrawerActions(req);
-
-    // Render Line Items
     renderDrawerItems(req.items || []);
-
-    // Render AI Evaluation Section
     renderDrawerAI(req);
-
-    // Render Audit Trail
     renderDrawerAudit(req.auditTrail || []);
 
     document.getElementById('requestDetailDrawer').classList.add('open');
@@ -399,25 +606,54 @@ function closeDetailDrawer() {
     AppState.selectedRequest = null;
 }
 
+function renderDrawerOverview(req) {
+    const t = i18n[AppState.language] || i18n.fr;
+    document.getElementById('drawerDeptRequester').textContent = `${req.department} · ${req.requestedBy}`;
+    document.getElementById('drawerTitle').textContent = req.title;
+
+    const statusBadge = document.getElementById('detailStatusBadge');
+    statusBadge.className = `badge badge-${req.status.toLowerCase()}`;
+    const statusLabels = {
+        DRAFT: t.statusDraft,
+        SUBMITTED: t.statusSubmitted,
+        DEPT_APPROVED: t.statusDeptApproved,
+        FINANCE_APPROVED: t.statusFinanceApproved,
+        ORDER_CREATED: t.statusOrderCreated,
+        REJECTED: t.statusRejected
+    };
+    statusBadge.textContent = statusLabels[req.status] || req.status;
+
+    document.getElementById('detailTotalAmount').textContent = formatCurrency(req.totalAmount);
+
+    const riskBadge = document.getElementById('detailRiskBadge');
+    riskBadge.innerHTML = getRiskBadge(req.riskScore, req.riskLevel);
+
+    const s4Doc = document.getElementById('detailS4Pr');
+    s4Doc.textContent = req.s4PrNumber || '-';
+
+    document.getElementById('detailJustification').textContent = req.businessJustification || '-';
+}
+
 function renderDrawerActions(req) {
     const container = document.getElementById('drawerActionBar');
     container.innerHTML = '';
 
-    const role = AppState.userRole; // Admin, Manager, Viewer
+    const t = i18n[AppState.language] || i18n.fr;
+    const role = AppState.userRole;
     const status = req.status;
 
-    // AI Analysis Action (always available)
-    const btnAI = document.createElement('button');
-    btnAI.className = 'sap-btn sap-btn-ghost btn-sm';
-    btnAI.innerHTML = '🤖 Run AI Risk & Anomaly Scan';
-    btnAI.onclick = () => triggerAIAnalysis(req.ID);
-    container.appendChild(btnAI);
+    // AI Evaluation button
+    const btnAi = document.createElement('button');
+    btnAi.className = 'sap-btn sap-btn-secondary btn-sm';
+    btnAi.innerHTML = t.btnRunAi;
+    btnAi.onclick = () => triggerAIAnalysis(req.ID);
+    container.appendChild(btnAi);
 
-    // Workflow Actions
+    // Workflow transition buttons according to BTP RBAC
     if (status === 'DRAFT' || status === 'REJECTED') {
         const btnSubmit = document.createElement('button');
         btnSubmit.className = 'sap-btn sap-btn-primary btn-sm';
-        btnSubmit.innerHTML = '📤 Submit for Approval';
+        btnSubmit.innerHTML = t.btnSubmit;
         btnSubmit.onclick = () => submitCapExRequest(req.ID);
         container.appendChild(btnSubmit);
     }
@@ -425,27 +661,27 @@ function renderDrawerActions(req) {
     if (status === 'SUBMITTED' && (role === 'Manager' || role === 'Admin')) {
         const btnDeptApprove = document.createElement('button');
         btnDeptApprove.className = 'sap-btn sap-btn-primary btn-sm';
-        btnDeptApprove.innerHTML = '✅ Department Approve';
+        btnDeptApprove.innerHTML = t.btnDeptApprove;
         btnDeptApprove.onclick = () => deptApproveRequest(req.ID);
         container.appendChild(btnDeptApprove);
 
         const btnReject = document.createElement('button');
         btnReject.className = 'sap-btn sap-btn-danger btn-sm';
-        btnReject.innerHTML = '❌ Reject Request';
+        btnReject.innerHTML = t.btnReject;
         btnReject.onclick = () => openRejectModal(req.ID);
         container.appendChild(btnReject);
     }
 
     if (status === 'DEPT_APPROVED' && role === 'Admin') {
-        const btnFinanceApprove = document.createElement('button');
-        btnFinanceApprove.className = 'sap-btn sap-btn-primary btn-sm';
-        btnFinanceApprove.innerHTML = '🏛️ Finance & Treasury Approve';
-        btnFinanceApprove.onclick = () => financeApproveRequest(req.ID);
-        container.appendChild(btnFinanceApprove);
+        const btnFinApprove = document.createElement('button');
+        btnFinApprove.className = 'sap-btn sap-btn-primary btn-sm';
+        btnFinApprove.innerHTML = t.btnFinanceApprove;
+        btnFinApprove.onclick = () => financeApproveRequest(req.ID);
+        container.appendChild(btnFinApprove);
 
         const btnReject = document.createElement('button');
         btnReject.className = 'sap-btn sap-btn-danger btn-sm';
-        btnReject.innerHTML = '❌ Reject Request';
+        btnReject.innerHTML = t.btnReject;
         btnReject.onclick = () => openRejectModal(req.ID);
         container.appendChild(btnReject);
     }
@@ -453,7 +689,7 @@ function renderDrawerActions(req) {
     if (status === 'FINANCE_APPROVED' && role === 'Admin') {
         const btnSyncS4 = document.createElement('button');
         btnSyncS4.className = 'sap-btn sap-btn-primary btn-sm';
-        btnSyncS4.innerHTML = '🔄 Release to S/4HANA Cloud';
+        btnSyncS4.innerHTML = t.btnSyncS4;
         btnSyncS4.onclick = () => syncWithS4HANA(req.ID);
         container.appendChild(btnSyncS4);
     }
@@ -464,21 +700,21 @@ function renderDrawerItems(items) {
     tbody.innerHTML = '';
 
     if (!items.length) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No line items specified.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Aucun poste spécifié.</td></tr>`;
         return;
     }
 
     items.forEach(it => {
         const tr = document.createElement('tr');
         const benchBadge = it.isBenchmarkExceeded
-            ? `<span class="badge badge-danger">Exceeds +${it.benchmarkDeviation}%</span>`
-            : `<span class="badge badge-finance_approved">In Benchmark</span>`;
+            ? `<span class="badge badge-danger">Surcoût +${it.benchmarkDeviation}%</span>`
+            : `<span class="badge badge-finance_approved">Conforme Barème</span>`;
 
         tr.innerHTML = `
             <td>#${it.itemNumber}</td>
             <td><strong>${it.materialDescription}</strong></td>
             <td>${it.category}</td>
-            <td>${it.quantity} ${it.unitOfMeasure || 'EA'}</td>
+            <td>${it.quantity} ${it.unitOfMeasure || 'U'}</td>
             <td>${formatCurrency(it.unitPrice)}</td>
             <td><strong>${formatCurrency(it.lineTotal || (it.quantity * it.unitPrice))}</strong></td>
             <td>${benchBadge}</td>
@@ -492,7 +728,7 @@ function renderDrawerAI(req) {
     const aiLog = (req.aiEvaluations && req.aiEvaluations.length) ? req.aiEvaluations[0] : null;
 
     if (!aiLog) {
-        box.innerHTML = `<p class="text-muted">No evaluation recorded. Click <strong>"Run AI Risk & Anomaly Scan"</strong> above to inspect with SAP GenAI Hub.</p>`;
+        box.innerHTML = `<p class="text-muted">Aucune évaluation enregistrée. Cliquez sur <strong>« Lancer le Scan IA des Risques & Prix »</strong> ci-dessus pour confronter aux barèmes LPEE.</p>`;
         return;
     }
 
@@ -505,12 +741,12 @@ function renderDrawerAI(req) {
 
     box.innerHTML = `
         <div style="margin-bottom: 8px;">
-            <strong>${aiLog.modelUsed}</strong> · <span class="badge ${aiLog.riskRating === 'LOW' ? 'badge-finance_approved' : 'badge-danger'}">${aiLog.riskRating} Risk (${aiLog.riskScore}/100)</span>
+            <strong>${aiLog.modelUsed}</strong> · <span class="badge ${aiLog.riskRating === 'LOW' ? 'badge-finance_approved' : 'badge-danger'}">Risque ${aiLog.riskRating} (${aiLog.riskScore}/100)</span>
         </div>
         <p style="margin-bottom: 8px;">${aiLog.executiveSummary}</p>
-        <p><strong>Recommendation:</strong> ${aiLog.recommendation}</p>
+        <p><strong>Recommandation :</strong> ${aiLog.recommendation}</p>
         <div style="margin-top: 8px; font-size: 12px;">
-            <strong>Findings & Anomalies:</strong>
+            <strong>Constats & Écarts Détectés :</strong>
             <ul style="margin-left: 18px; margin-top: 4px;">
                 ${anomalies.map(a => `<li>${a}</li>`).join('')}
             </ul>
@@ -523,7 +759,7 @@ function renderDrawerAudit(trail) {
     timeline.innerHTML = '';
 
     if (!trail.length) {
-        timeline.innerHTML = `<p class="text-muted text-sm">No audit events recorded.</p>`;
+        timeline.innerHTML = `<p class="text-muted text-sm">Aucun événement d'audit enregistré.</p>`;
         return;
     }
 
@@ -532,7 +768,7 @@ function renderDrawerAudit(trail) {
         item.className = 'timeline-item';
         item.innerHTML = `
             <div class="timeline-header">
-                <span><strong>${event.action}</strong> by ${event.performedBy}</span>
+                <span><strong>${event.action}</strong> par ${event.performedBy}</span>
                 <span class="text-muted">${formatDate(event.timestamp)}</span>
             </div>
             <div class="timeline-comment">${event.comments || ''}</div>
@@ -547,11 +783,12 @@ function renderDrawerAudit(trail) {
 async function submitCapExRequest(id) {
     try {
         await odataFetch(`/odata/v4/procurement/CapExRequests(ID=${id})/submit`, { method: 'POST', body: '{}' });
-        showToast('CapEx proposal successfully submitted for management review!');
+        const t = i18n[AppState.language] || i18n.fr;
+        showToast(t.toastSubmitted);
         await refreshAllData();
         openDetailDrawer(id);
     } catch (err) {
-        alert('Workflow submission error: ' + err.message);
+        alert('Erreur de soumission : ' + err.message);
     }
 }
 
@@ -559,13 +796,14 @@ async function deptApproveRequest(id) {
     try {
         await odataFetch(`/odata/v4/procurement/CapExRequests(ID=${id})/deptApprove`, {
             method: 'POST',
-            body: JSON.stringify({ comments: 'Department manager review approved. Budget verified.' })
+            body: JSON.stringify({ comments: 'Avis favorable du Conducteur de Travaux. Conforme au planning.' })
         });
-        showToast('Request department-approved! Forwarded to Finance.');
+        const t = i18n[AppState.language] || i18n.fr;
+        showToast(t.toastDeptApproved);
         await refreshAllData();
         openDetailDrawer(id);
     } catch (err) {
-        alert('Approval error: ' + err.message);
+        alert('Erreur de visa technique : ' + err.message);
     }
 }
 
@@ -573,13 +811,14 @@ async function financeApproveRequest(id) {
     try {
         await odataFetch(`/odata/v4/procurement/CapExRequests(ID=${id})/financeApprove`, {
             method: 'POST',
-            body: JSON.stringify({ comments: 'Central treasury sign-off granted. Ready for S/4HANA release.' })
+            body: JSON.stringify({ comments: 'Visa financier Direction Générale accordé. Autorisation S/4HANA.' })
         });
-        showToast('Executive Finance Approval Granted!');
+        const t = i18n[AppState.language] || i18n.fr;
+        showToast(t.toastFinanceApproved);
         await refreshAllData();
         openDetailDrawer(id);
     } catch (err) {
-        alert('Finance approval error: ' + err.message);
+        alert('Erreur de visa financier : ' + err.message);
     }
 }
 
@@ -598,7 +837,7 @@ async function confirmRejection() {
     const id = AppState.rejectionTargetId;
     const reason = document.getElementById('rejectReasonText').value.trim();
     if (!reason) {
-        alert('Please enter a rejection reason.');
+        alert('Veuillez préciser le motif du rejet.');
         return;
     }
 
@@ -607,42 +846,45 @@ async function confirmRejection() {
             method: 'POST',
             body: JSON.stringify({ reason })
         });
-        showToast('Proposal rejected and returned to requester with governance comments.');
+        const t = i18n[AppState.language] || i18n.fr;
+        showToast(t.toastRejected);
         closeRejectModal();
         await refreshAllData();
         openDetailDrawer(id);
     } catch (err) {
-        alert('Rejection error: ' + err.message);
+        alert('Erreur de rejet : ' + err.message);
     }
 }
 
 async function syncWithS4HANA(id) {
     try {
-        showToast('Connecting to SAP BTP Destination [S4HANA_CLOUD_DEST]...');
-        const res = await odataFetch(`/odata/v4/procurement/CapExRequests(ID=${id})/syncWithS4HANA`, {
+        showToast('Connexion à la Destination SAP BTP [S4HANA_CLOUD_DEST] (Maroc MA01)...');
+        await odataFetch(`/odata/v4/procurement/CapExRequests(ID=${id})/syncWithS4HANA`, {
             method: 'POST',
             body: '{}'
         });
-        showToast(`S/4HANA Sync Success! Purchase Requisition generated.`);
+        const t = i18n[AppState.language] || i18n.fr;
+        showToast(t.toastS4Synced);
         await refreshAllData();
         openDetailDrawer(id);
     } catch (err) {
-        alert('S/4HANA destination sync error: ' + err.message);
+        alert('Erreur de synchronisation S/4HANA : ' + err.message);
     }
 }
 
 async function triggerAIAnalysis(id) {
     try {
-        showToast('Invoking SAP AI Core GenAI Hub evaluation...');
+        showToast('Exécution de l\'analyse SAP AI Core & Barèmes BTP Maroc...');
         const evalResult = await odataFetch(`/odata/v4/procurement/CapExRequests(ID=${id})/triggerAIAnalysis`, {
             method: 'POST',
             body: '{}'
         });
-        showToast(`AI Evaluation complete! Risk Score: ${evalResult.riskRating}`);
+        const t = i18n[AppState.language] || i18n.fr;
+        showToast(`${t.toastAiDone} Risque : ${evalResult.riskRating}`);
         await refreshAllData();
         openDetailDrawer(id);
     } catch (err) {
-        alert('AI Core error: ' + err.message);
+        alert('Erreur SAP AI Core : ' + err.message);
     }
 }
 
@@ -665,17 +907,17 @@ function addModalLineItem() {
     div.className = 'modal-item-row';
     div.dataset.index = index;
     div.innerHTML = `
-        <input type="text" class="item-desc" placeholder="Material Description" required value="Enterprise Server Unit">
+        <input type="text" class="item-desc" placeholder="Désignation du poste" required value="Acier Haute Adhérence FeE500 Sonasid">
         <select class="item-cat">
-            <option value="Hardware">Hardware</option>
-            <option value="Software">Software</option>
-            <option value="Facility">Facility</option>
-            <option value="Machinery">Machinery</option>
-            <option value="Consulting">Consulting</option>
+            <option value="Hardware">Matériaux (Béton / Acier / Ciment)</option>
+            <option value="Machinery">Engins & Matériel Lourd</option>
+            <option value="Facility">Coffrage & Équipement Chantier</option>
+            <option value="Consulting">Prestations & Essais LPEE</option>
+            <option value="Software">Systèmes & Télématique</option>
         </select>
-        <input type="number" class="item-qty" placeholder="Qty" min="1" value="1" required style="width: 70px;">
-        <input type="number" class="item-price" placeholder="Unit Price ($)" min="1" value="15000" required style="width: 120px;">
-        <span class="item-total">$15,000.00</span>
+        <input type="number" class="item-qty" placeholder="Qté" min="1" value="20" required style="width: 70px;">
+        <input type="number" class="item-price" placeholder="Prix Unitaire (MAD)" min="1" value="6500" required style="width: 150px;">
+        <span class="item-total">130 000,00 MAD</span>
         <button type="button" class="sap-btn sap-btn-ghost btn-sm" onclick="this.parentElement.remove()">✕</button>
     `;
     container.appendChild(div);
@@ -688,7 +930,7 @@ async function saveNewRequest() {
     const justification = document.getElementById('newReqJustification').value.trim();
 
     if (!title || !justification) {
-        alert('Please fill in all mandatory fields.');
+        alert('Veuillez renseigner tous les champs obligatoires.');
         return;
     }
 
@@ -712,7 +954,7 @@ async function saveNewRequest() {
     });
 
     if (!items.length) {
-        alert('Please specify at least one line item.');
+        alert('Veuillez spécifier au moins un poste de fourniture ou matériel.');
         return;
     }
 
@@ -721,11 +963,11 @@ async function saveNewRequest() {
     const payload = {
         title,
         department,
-        requestedBy: AppState.userRole === 'Admin' ? 'sarah.jenkins@enterprise.corp' : 'user.requester@enterprise.corp',
+        requestedBy: AppState.userRole === 'Admin' ? 'youssef.benjelloun@btp-maroc.ma' : 'amine.elidrissi@btp-maroc.ma',
         priority,
         status: 'DRAFT',
         totalAmount,
-        currency: 'USD',
+        currency: 'MAD',
         businessJustification: justification,
         items
     };
@@ -735,12 +977,12 @@ async function saveNewRequest() {
             method: 'POST',
             body: JSON.stringify(payload)
         });
-        showToast('CapEx Request successfully saved as Draft!');
+        showToast('Demande BTP enregistrée avec succès en brouillon !');
         closeNewRequestModal();
         await refreshAllData();
         openDetailDrawer(created.ID);
     } catch (err) {
-        alert('Error creating CapEx request: ' + err.message);
+        alert('Erreur lors de la création de la demande : ' + err.message);
     }
 }
 
@@ -755,8 +997,10 @@ async function sendCopilotMessage() {
     input.value = '';
     appendChatMessage('user', prompt);
 
-    // Typing indicator placeholder
-    const typingId = appendChatMessage('assistant', 'Thinking and querying BTP procurement knowledge graph...');
+    const typingMsg = AppState.language === 'fr'
+        ? 'Analyse en cours via le graphe des chantiers SAP BTP Maroc...'
+        : 'Thinking and querying BTP procurement knowledge graph...';
+    const typingId = appendChatMessage('assistant', typingMsg);
 
     try {
         const res = await odataFetch('/odata/v4/procurement/copilotQuery', {
@@ -764,26 +1008,25 @@ async function sendCopilotMessage() {
             body: JSON.stringify({ prompt, requestId: AppState.selectedRequest?.ID || null })
         });
 
-        // Update assistant message
         const typingEl = document.getElementById(typingId);
         if (typingEl) typingEl.remove();
 
         let formattedReply = `<p>${res.reply}</p>`;
         if (res.actionRecommended) {
-            formattedReply += `<p class="mt-2"><strong>Recommended Action:</strong> ${res.actionRecommended} (Confidence: ${Math.round(res.confidenceScore * 100)}%)</p>`;
+            formattedReply += `<p class="mt-2"><strong>Action Recommandée :</strong> ${res.actionRecommended} (Indice de confiance : ${Math.round(res.confidenceScore * 100)}%)</p>`;
         }
         if (res.anomaliesDetected && res.anomaliesDetected.length) {
-            formattedReply += `<div class="mt-2"><strong>Anomalies Detected:</strong><ul>${res.anomaliesDetected.map(a => `<li>⚠️ ${a}</li>`).join('')}</ul></div>`;
+            formattedReply += `<div class="mt-2"><strong>Anomalies Signalées :</strong><ul>${res.anomaliesDetected.map(a => `<li>⚠️ ${a}</li>`).join('')}</ul></div>`;
         }
         if (res.suggestedNextSteps && res.suggestedNextSteps.length) {
-            formattedReply += `<div class="mt-2"><strong>Next Steps:</strong><ul>${res.suggestedNextSteps.map(s => `<li>➔ ${s}</li>`).join('')}</ul></div>`;
+            formattedReply += `<div class="mt-2"><strong>Étapes Suivantes Préconisées :</strong><ul>${res.suggestedNextSteps.map(s => `<li>➔ ${s}</li>`).join('')}</ul></div>`;
         }
 
         appendChatMessage('assistant', formattedReply, true);
     } catch (err) {
         const typingEl = document.getElementById(typingId);
         if (typingEl) typingEl.remove();
-        appendChatMessage('assistant', `⚠️ Copilot encountered an error: ${err.message}`);
+        appendChatMessage('assistant', `⚠️ Erreur Copilot : ${err.message}`);
     }
 }
 
@@ -826,7 +1069,7 @@ function renderIntegrations() {
             <td>${i.latencyMs} ms</td>
             <td><strong>${i.totalSyncedRecords}</strong></td>
             <td>${formatDate(i.lastPing)}</td>
-            <td><button class="sap-btn sap-btn-ghost btn-sm" onclick="pingSingleDestination('${i.systemKey}')">Ping</button></td>
+            <td><button class="sap-btn sap-btn-ghost btn-sm" onclick="pingSingleDestination('${i.systemKey}')">Tester</button></td>
         `;
         tbody.appendChild(tr);
 
@@ -839,8 +1082,8 @@ function renderIntegrations() {
             </div>
             <div class="integration-tile-sub">${i.destinationName}</div>
             <div class="integration-metrics">
-                <span>Latency: <strong>${i.latencyMs}ms</strong></span>
-                <span>Synced: <strong>${i.totalSyncedRecords}</strong></span>
+                <span>Latence : <strong>${i.latencyMs}ms</strong></span>
+                <span>Synchronisés : <strong>${i.totalSyncedRecords}</strong></span>
             </div>
         `;
         quickGrid.appendChild(tile);
@@ -856,15 +1099,15 @@ function renderIntegrations() {
 
 async function pingSingleDestination(systemKey) {
     try {
-        showToast(`Pinging ${systemKey}...`);
+        showToast(`Test de connexion vers ${systemKey}...`);
         await odataFetch('/odata/v4/procurement/pingDestination', {
             method: 'POST',
             body: JSON.stringify({ systemKey })
         });
-        showToast(`${systemKey} responded in healthy state!`);
+        showToast(`Destination ${systemKey} opérationnelle !`);
         await fetchIntegrationsData();
     } catch (err) {
-        alert('Ping error: ' + err.message);
+        alert('Erreur de test destination : ' + err.message);
     }
 }
 
@@ -876,10 +1119,10 @@ async function pingAllDestinations() {
                 body: JSON.stringify({ systemKey: i.systemKey })
             });
         }
-        showToast('All 4 SAP BTP Destinations successfully verified!');
+        showToast('Toutes les destinations SAP BTP Maroc sont vérifiées avec succès !');
         await fetchIntegrationsData();
     } catch (err) {
-        alert('Error pinging destinations: ' + err.message);
+        alert('Erreur lors du test des destinations : ' + err.message);
     }
 }
 
@@ -890,16 +1133,16 @@ let stagedCSVContent = null;
 
 function handleCSVFile(file) {
     if (!file.name.endsWith('.csv')) {
-        alert('Please select a valid .csv file.');
+        alert('Veuillez sélectionner un fichier .csv valide.');
         return;
     }
 
     const reader = new FileReader();
     reader.onload = (e) => {
         stagedCSVContent = e.target.result;
-        document.querySelector('.drop-text').textContent = `Loaded: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+        document.querySelector('.drop-text').textContent = `Fichier chargé : ${file.name} (${Math.round(file.size / 1024)} Ko)`;
         document.getElementById('btnProcessCSV').removeAttribute('disabled');
-        showToast(`File ${file.name} ready for import processing.`);
+        showToast(`Fichier ${file.name} prêt pour l'importation.`);
     };
     reader.readAsText(file);
 }
@@ -908,7 +1151,7 @@ async function processAndUploadCSV() {
     if (!stagedCSVContent) return;
     const feedbackBox = document.getElementById('csvValidationFeedback');
     feedbackBox.style.display = 'block';
-    feedbackBox.innerHTML = '<p class="text-muted">Parsing, validating against schema, and importing...</p>';
+    feedbackBox.innerHTML = '<p class="text-muted">Analyse du schéma BTP, contrôle des prix et importation...</p>';
 
     try {
         const result = await odataFetch('/odata/v4/procurement/importCapExCSV', {
@@ -918,38 +1161,38 @@ async function processAndUploadCSV() {
 
         if (result.success) {
             feedbackBox.innerHTML = `
-                <div class="badge badge-finance_approved" style="margin-bottom: 6px;">SUCCESS</div>
+                <div class="badge badge-finance_approved" style="margin-bottom: 6px;">SUCCÈS</div>
                 <p><strong>${result.message}</strong></p>
                 ${result.errors.length ? `<ul class="text-sm mt-2">${result.errors.map(e => `<li>⚠️ ${e}</li>`).join('')}</ul>` : ''}
             `;
-            showToast(`Imported ${result.importedCount} CapEx requests!`);
+            const t = i18n[AppState.language] || i18n.fr;
+            showToast(`${result.importedCount} ${t.toastCsvSuccess}`);
             stagedCSVContent = null;
             document.getElementById('btnProcessCSV').setAttribute('disabled', 'true');
             await refreshAllData();
         } else {
             feedbackBox.innerHTML = `
-                <div class="badge badge-danger" style="margin-bottom: 6px;">VALIDATION FAILED</div>
+                <div class="badge badge-danger" style="margin-bottom: 6px;">ÉCHEC VALIDATION</div>
                 <p>${result.message}</p>
                 <ul class="text-sm mt-2">${result.errors.map(e => `<li>❌ ${e}</li>`).join('')}</ul>
             `;
         }
     } catch (err) {
-        feedbackBox.innerHTML = `<p class="badge badge-danger">Upload failed: ${err.message}</p>`;
+        feedbackBox.innerHTML = `<p class="badge badge-danger">Erreur de téléversement : ${err.message}</p>`;
     }
 }
 
 function downloadSampleTemplate() {
     const csvContent = `title,department,requestedBy,priority,businessJustification,materialDescription,category,quantity,unitPrice\n` +
-        `"Autonomous Automated Guided Vehicles (AGV)","Operations","marcus.vance@enterprise.corp","HIGH","Warehouse automation initiative","OTTO 1500 Heavy-Duty AGV Platform","Machinery",4,65000\n` +
-        `"Autonomous Automated Guided Vehicles (AGV)","Operations","marcus.vance@enterprise.corp","HIGH","Warehouse automation initiative","Fleet Management Supervisory Software","Software",1,25000\n` +
-        `"Advanced Enterprise Cyber Defense Suite","IT Infrastructure","chloe.chen@enterprise.corp","CRITICAL","Zero-trust perimeter security deployment","CrowdStrike Falcon Enterprise 3-Year Protection","Software",500,120\n` +
-        `"Cleanroom HVAC HEPA Filtration Expansion","Engineering","elena.rostova@enterprise.corp","MEDIUM","ISO Class 5 semiconductor laboratory upgrade","Camfil CamClose High Efficiency Air Filters","Facility",20,1800`;
+        `"Fourniture Acier Sonasid Viaduc TGV","Genie Civil & Ouvrages d'Art","amine.elidrissi@btp-maroc.ma","HIGH","Ferraillage tablier viaduc","Acier FeE500 Sonasid D20","Hardware",80,6500\n` +
+        `"Beton Pret a l'Emploi B25 Fondations","Gros Oeuvre & Batiment","youssef.benjelloun@btp-maroc.ma","MEDIUM","Coulage semelles filantes","Beton Pret a l'Emploi LafargeHolcim","Hardware",250,900\n` +
+        `"Location Mensuelle Grue a Tour Liebherr","Gros Oeuvre & Batiment","youssef.benjelloun@btp-maroc.ma","HIGH","Levage elements prefabriques","Grue a Tour Liebherr 280 EC-H","Machinery",2,120000`;
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'CapEx_Bulk_Import_Template.csv';
+    a.download = 'Modele_Import_Chantiers_BTP_Maroc.csv';
     a.click();
     URL.revokeObjectURL(url);
 }

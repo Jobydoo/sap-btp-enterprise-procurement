@@ -1,12 +1,12 @@
 const crypto = require('crypto');
 
 /**
- * Enterprise CSV Bulk Import & Export Processor
- * Supports RFC 4180 parsing with comma and semicolon auto-detection
+ * Enterprise CSV Bulk Import & Export Processor - Spécialisé BTP Maroc
+ * Conforme RFC 4180 avec détection automatique virgule/point-virgule et devise MAD
  */
 class CSVHandler {
     /**
-     * Parse raw CSV string into rows of objects
+     * Parse les lignes brutes CSV en tableau d'objets
      */
     static parseCSV(csvText) {
         if (!csvText || typeof csvText !== 'string') return [];
@@ -14,7 +14,6 @@ class CSVHandler {
         const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
         if (lines.length < 2) return [];
 
-        // Detect delimiter (comma vs semicolon)
         const headerLine = lines[0];
         const delimiter = headerLine.includes(';') ? ';' : ',';
 
@@ -28,7 +27,7 @@ class CSVHandler {
                 if (char === '"') {
                     if (inQuotes && text[i + 1] === '"') {
                         current += '"';
-                        i++; // skip escaped quote
+                        i++;
                     } else {
                         inQuotes = !inQuotes;
                     }
@@ -61,7 +60,7 @@ class CSVHandler {
     }
 
     /**
-     * Process parsed rows and create CapEx requests with line items in database
+     * Traite les lignes CSV et insère les demandes et postes BTP en base de données
      */
     static async importRequests(tx, cds, csvText) {
         const rows = this.parseCSV(csvText);
@@ -69,8 +68,8 @@ class CSVHandler {
             return {
                 success: false,
                 importedCount: 0,
-                errors: ['CSV file is empty or formatted incorrectly. Expected header and at least one data row.'],
-                message: 'No valid records found in CSV.'
+                errors: ['Le fichier CSV est vide ou non conforme. En-tête et au moins une ligne requises.'],
+                message: 'Aucun enregistrement valide trouvé dans le CSV.'
             };
         }
 
@@ -83,17 +82,15 @@ class CSVHandler {
 
         const errors = [];
         let importedCount = 0;
-
-        // Group rows by request title & department
         const requestGroups = new Map();
 
         rows.forEach((row, idx) => {
             const rowNum = idx + 2;
             const title = row.title || row.Title;
             const department = row.department || row.Department;
-            const requestedBy = row.requestedBy || row.RequestedBy || 'enterprise.user@corp.local';
+            const requestedBy = row.requestedBy || row.RequestedBy || 'youssef.benjelloun@btp-maroc.ma';
             const priority = (row.priority || row.Priority || 'MEDIUM').toUpperCase();
-            const justification = row.businessJustification || row.Justification || 'Bulk uploaded via CSV center';
+            const justification = row.businessJustification || row.Justification || 'Importation lot BTP via fichier CSV';
 
             const description = row.materialDescription || row.Description || row.ItemDescription;
             const category = row.category || row.Category || 'Hardware';
@@ -101,15 +98,15 @@ class CSVHandler {
             const unitPrice = parseFloat(row.unitPrice || row.UnitPrice || 0);
 
             if (!title) {
-                errors.push(`Row ${rowNum}: Missing mandatory 'title' field.`);
+                errors.push(`Ligne ${rowNum} : Champ 'title' (titre) obligatoire manquant.`);
                 return;
             }
             if (!department) {
-                errors.push(`Row ${rowNum}: Missing mandatory 'department' field.`);
+                errors.push(`Ligne ${rowNum} : Champ 'department' (direction/chantier) obligatoire manquant.`);
                 return;
             }
             if (!description || isNaN(quantity) || isNaN(unitPrice)) {
-                errors.push(`Row ${rowNum}: Missing or invalid item details (description, quantity, or unitPrice).`);
+                errors.push(`Ligne ${rowNum} : Détails du poste invalides (description, quantité ou prix unitaire).`);
                 return;
             }
 
@@ -142,11 +139,11 @@ class CSVHandler {
                 const reqEntity = {
                     ID: requestId,
                     title: group.title,
-                    description: `Bulk imported CapEx request containing ${group.items.length} item(s).`,
+                    description: `Demande de matériel BTP importée par lot comportant ${group.items.length} poste(s).`,
                     department: group.department,
                     requestedBy: group.requestedBy,
                     totalAmount,
-                    currency: 'USD',
+                    currency: 'MAD',
                     priority: group.priority,
                     status: 'DRAFT',
                     riskScore: 20.0,
@@ -166,7 +163,7 @@ class CSVHandler {
                     quantity: it.quantity,
                     unitPrice: it.unitPrice,
                     lineTotal: it.lineTotal,
-                    unitOfMeasure: 'EA',
+                    unitOfMeasure: 'U',
                     targetVendor_ID: defaultVendor,
                     costCenter_ID: defaultCC,
                     deliveryDate: new Date(Date.now() + 45 * 86400000).toISOString().split('T')[0],
@@ -177,7 +174,7 @@ class CSVHandler {
                 await tx.run(INSERT.into(CapExItems).entries(itemEntities));
                 importedCount++;
             } catch (err) {
-                errors.push(`Failed to insert request '${group.title}': ${err.message}`);
+                errors.push(`Échec d'insertion de la demande '${group.title}' : ${err.message}`);
             }
         }
 
@@ -185,17 +182,17 @@ class CSVHandler {
             success: importedCount > 0,
             importedCount,
             errors,
-            message: `Successfully processed ${importedCount} CapEx request(s) with items. ${errors.length ? errors.length + ' row warning(s).' : ''}`
+            message: `Traitement terminé avec succès. ${importedCount} demande(s) de chantier créées.`
         };
     }
 
     /**
-     * Export CapEx Requests and items to CSV text
+     * Exporte l'ensemble des demandes et postes BTP vers une chaîne CSV au format RFC 4180
      */
     static exportToCSV(requests = [], items = []) {
         const itemMap = new Map();
         items.forEach(it => {
-            const reqId = it.request_ID || it.request?.ID;
+            const reqId = it.request_ID;
             if (!itemMap.has(reqId)) itemMap.set(reqId, []);
             itemMap.get(reqId).push(it);
         });
@@ -239,7 +236,7 @@ class CSVHandler {
                     escapeCSV(req.status),
                     escapeCSV(req.priority),
                     req.totalAmount || 0,
-                    escapeCSV(req.currency || 'USD'),
+                    escapeCSV(req.currency || 'MAD'),
                     req.riskScore || 0,
                     escapeCSV(req.riskLevel || 'LOW'),
                     escapeCSV(req.s4PrNumber || ''),

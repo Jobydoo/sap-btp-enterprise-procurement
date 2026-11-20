@@ -9,35 +9,34 @@ cds.on('bootstrap', (app) => {
     app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
     // =========================================================================
-    // SAP BTP Persona Switcher Middleware (Mock Auth & RBAC)
+    // SAP BTP Persona Switcher Middleware - Spécialisé BTP Maroc
     // =========================================================================
     app.use((req, res, next) => {
-        // Allow user to switch personas via header, query param, or default to Admin
         const roleParam = req.query.userRole || req.headers['x-user-role'] || 'Admin';
 
         let userProfile = {
-            id: 'sarah.jenkins@enterprise.corp',
-            name: 'Sarah Jenkins',
-            title: 'Chief Procurement Officer & Global Admin',
+            id: 'youssef.benjelloun@btp-maroc.ma',
+            name: 'Youssef Benjelloun',
+            title: 'Directeur des Marchés & Travaux (Admin BTP)',
             roles: ['ProcurementAdmin', 'ProcurementManager', 'ProcurementViewer', 'admin'],
-            department: 'Corporate Governance'
+            department: 'Direction Générale BTP Maroc'
         };
 
         if (roleParam === 'Manager') {
             userProfile = {
-                id: 'alex.rivera@enterprise.corp',
-                name: 'Alex Rivera',
-                title: 'Senior Engineering & Operations Manager',
+                id: 'amine.elidrissi@btp-maroc.ma',
+                name: 'Amine El Idrissi',
+                title: 'Conducteur Principal de Travaux & Chantiers',
                 roles: ['ProcurementManager', 'ProcurementViewer'],
-                department: 'Engineering'
+                department: 'Génie Civil & Ouvrages d\'Art'
             };
         } else if (roleParam === 'Viewer') {
             userProfile = {
-                id: 'david.kim@enterprise.corp',
-                name: 'David Kim',
-                title: 'Procurement Specialist / Requester',
+                id: 'fatima.mansouri@btp-maroc.ma',
+                name: 'Fatima Zahra Mansouri',
+                title: 'Ingénieure Études de Prix & Métreur',
                 roles: ['ProcurementViewer'],
-                department: 'Operations'
+                department: 'Terrassement & VRD'
             };
         }
 
@@ -51,7 +50,6 @@ cds.on('bootstrap', (app) => {
             }
         });
 
-        // Store profile for UI queries
         req.userProfile = userProfile;
         next();
     });
@@ -75,10 +73,10 @@ cds.on('bootstrap', (app) => {
             const csvString = CSVHandler.exportToCSV(requests, items);
 
             res.setHeader('Content-Type', 'text/csv');
-            res.setHeader('Content-Disposition', `attachment; filename="SAP_BTP_CapEx_Portfolio_${new Date().toISOString().split('T')[0]}.csv"`);
+            res.setHeader('Content-Disposition', `attachment; filename="SAP_BTP_Maroc_Chantiers_${new Date().toISOString().split('T')[0]}.csv"`);
             res.status(200).send(csvString);
         } catch (err) {
-            res.status(500).json({ error: 'Failed to export CSV: ' + err.message });
+            res.status(500).json({ error: 'Échec de l\'export CSV : ' + err.message });
         }
     });
 
@@ -92,7 +90,7 @@ cds.on('bootstrap', (app) => {
 
             res.json({
                 status: 'HEALTHY',
-                framework: 'SAP Cloud Application Programming Model (CAP)',
+                framework: 'SAP Cloud Application Programming Model (CAP) - BTP Maroc',
                 version: cds.version,
                 nodeVersion: process.version,
                 database: cds.env.requires.db?.kind || 'sqlite',

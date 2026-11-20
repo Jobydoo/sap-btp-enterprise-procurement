@@ -1,12 +1,38 @@
-# SAP BTP Enterprise CapEx Procurement & Strategic Asset Hub
+# SAP BTP Enterprise CapEx Procurement - Édition BTP Maroc & Construction
 
 [![SAP BTP Clean Core](https://img.shields.io/badge/SAP%20BTP-Clean%20Core%20Certified-blue.svg)](https://www.sap.com/products/technology-platform.html)
 [![SAP CAP Version](https://img.shields.io/badge/SAP%20CAP-v10.2.2-green.svg)](https://cap.cloud.sap/)
 [![Node.js Version](https://img.shields.io/badge/Node.js-v22-brightgreen.svg)](https://nodejs.org/)
 [![Database](https://img.shields.io/badge/Database-SQLite%20%7C%20HANA%20Cloud-blueviolet.svg)](https://www.sap.com/products/technology-platform/hana.html)
-[![Tests](https://img.shields.io/badge/Tests-8%2F8%20Passing%20(100%25)-success.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-8%2F8%20CAP%20%2B%2010%2F10%20API%20Passing-success.svg)]()
+[![Live Demo](https://img.shields.io/badge/Vercel-Live%20Demo-black?logo=vercel)](https://sap-btp-enterprise-procurement.vercel.app)
 
-An enterprise-grade, full-stack application built for **SAP Business Technology Platform (SAP BTP)**. It synthesizes architectural best practices from the official **SAP Global Center of Excellence (CoE)** samples (`SAP-samples/btp-global-center-of-excellence-samples`) and the wider SAP BTP ecosystem (`github.com/topics/sap-btp`, `cloud-cap-samples`), extending them with an end-to-end multi-step workflow engine, S/4HANA Cloud Destination integration, SAP GenAI Hub risk analysis, and executive KPI monitoring.
+An enterprise-grade, full-stack application built for **SAP Business Technology Platform (SAP BTP)**, specifically adapted for the **Moroccan Construction & Civil Works Industry (BTP au Maroc - Bâtiment et Travaux Publics)** with a complete **bilingual French (Maroc) / English experience**.
+
+- 🌐 **Live Demo (Vercel):** [https://sap-btp-enterprise-procurement.vercel.app](https://sap-btp-enterprise-procurement.vercel.app)
+- 🐙 **GitHub Repository:** [https://github.com/Jobydoo/sap-btp-enterprise-procurement](https://github.com/Jobydoo/sap-btp-enterprise-procurement)
+
+It synthesizes architectural best practices from the official **SAP Global Center of Excellence (CoE)** samples (`SAP-samples/btp-global-center-of-excellence-samples`) and the wider SAP BTP ecosystem (`github.com/topics/sap-btp`, `cloud-cap-samples`), extending them with an end-to-end multi-step workflow engine, S/4HANA Cloud Destination integration (Société MA01), SAP GenAI Hub risk analysis (LPEE standards & price benchmarks), and executive KPI monitoring in Moroccan Dirhams (MAD).
+
+---
+
+## 🇲🇦 Adaptation BTP Maroc & Fonctionnalités Clés
+
+1. **Devise & Métriques Financières en Dirham Marocain (MAD) :**
+   - Suivi budgétaire consolidé de **66,0 M MAD** réparti entre 5 pôles de travaux.
+   - Budgets des chantiers : *Gros Œuvre & Bâtiment* (15M MAD), *Génie Civil & Ouvrages d'Art* (25M MAD), *Terrassement & VRD* (12M MAD), *Matériel & Engins Chantiers* (8M MAD), *Second Œuvre & Équipements* (6M MAD).
+2. **Grands Chantiers & Projets d'Infrastructures Nationaux :**
+   - *Tour Casablanca Finance City (CFC)*, *Viaducs LGV Kénitra-Marrakech (Lot 3)*, *Zone Logistique Port Tanger Med II*, *Nouveau Centre Hospitalier Universitaire (CHU) de Rabat*, *Parc Central des Engins à Bouskoura*.
+3. **Écosystème des Fournisseurs BTP de Référence au Maroc :**
+   - Intégration des leaders du marché marocain : **LafargeHolcim Maroc** (Béton prêt à l'emploi B25/B30), **Sonasid** (Aciers haute adhérence FeE500), **Tractafric Equipment Maroc** (Pelles CAT 336 GC & Tombereaux Caterpillar), **Ciments du Maroc**, **Sika Maroc** (Adjuvants et étanchéité), **Comptoir Métallurgique Marocain (CMM)**.
+4. **Intégration SAP S/4HANA Cloud (Filiale Maroc MA01) :**
+   - Génération automatique de demandes d'achat (DA / Purchase Requisitions) conformes au Company Code `MA01` et à la division logistique `MA10` dès validation finale.
+5. **Copilot IA SAP GenAI Hub BTP Maroc :**
+   - Détection d'anomalies de prix par rapport aux barèmes nationaux et normes **LPEE** (Laboratoire Public d'Essais et d'Études).
+   - Suggestions tactiques de négociation, alertes d'engagement budgétaire et suivi de conformité fiscale (Attestations de Régularité Fiscale, Cautions bancaires).
+6. **Interface Bilingue Interactive (Sélecteur FR / EN) :**
+   - Basculement instantané en un clic entre `🇲🇦 Français (Maroc)` et `🌐 English`.
+   - Internationalisation dynamique de tous les labels, filtres, cartes KPI, modales de rejet, formulaires et messages d'audit.
 
 ---
 

@@ -10,8 +10,8 @@ const CSVHandler = require('../srv/csv-handler');
 // Global in-memory data store for serverless execution
 let dataStore = null;
 
-function loadSeedData() {
-    if (dataStore) return dataStore;
+function loadSeedData(forceReload = false) {
+    if (dataStore && !forceReload) return dataStore;
 
     const dataDir = path.join(__dirname, '..', 'db', 'data');
 
@@ -35,6 +35,7 @@ function loadSeedData() {
             ...r,
             totalAmount: parseFloat(r.totalAmount) || 0,
             riskScore: parseFloat(r.riskScore) || 15.0,
+            currency: r.currency || 'MAD',
             isExternalSynced: r.isExternalSynced === 'true' || r.isExternalSynced === true
         })),
         items: rawItems.map(it => ({
@@ -53,6 +54,7 @@ function loadSeedData() {
             committedAmount: parseFloat(b.committedAmount) || 0,
             spentAmount: parseFloat(b.spentAmount) || 0,
             remainingBudget: parseFloat(b.remainingBudget) || 0,
+            currency: b.currency || 'MAD',
             utilizationPercent: parseFloat(b.utilizationPercent) || 0
         })),
         vendors: rawVendors.map(v => ({
@@ -74,32 +76,32 @@ function loadSeedData() {
     return dataStore;
 }
 
-// User Persona Helper
+// User Persona Helper - Spécialisé BTP Maroc
 function getUserProfile(roleParam) {
     if (roleParam === 'Manager') {
         return {
-            id: 'alex.rivera@enterprise.corp',
-            name: 'Alex Rivera',
-            title: 'Senior Engineering & Operations Manager',
+            id: 'amine.elidrissi@btp-maroc.ma',
+            name: 'Amine El Idrissi',
+            title: 'Conducteur Principal de Travaux & Chantiers',
             roles: ['ProcurementManager', 'ProcurementViewer'],
-            department: 'Engineering'
+            department: 'Génie Civil & Ouvrages d\'Art'
         };
     }
     if (roleParam === 'Viewer') {
         return {
-            id: 'david.kim@enterprise.corp',
-            name: 'David Kim',
-            title: 'Procurement Specialist / Requester',
+            id: 'fatima.mansouri@btp-maroc.ma',
+            name: 'Fatima Zahra Mansouri',
+            title: 'Ingénieure Études de Prix & Métreur',
             roles: ['ProcurementViewer'],
-            department: 'Operations'
+            department: 'Terrassement & VRD'
         };
     }
     return {
-        id: 'sarah.jenkins@enterprise.corp',
-        name: 'Sarah Jenkins',
-        title: 'Chief Procurement Officer & Global Admin',
+        id: 'youssef.benjelloun@btp-maroc.ma',
+        name: 'Youssef Benjelloun',
+        title: 'Directeur des Marchés & Travaux (Admin BTP)',
         roles: ['ProcurementAdmin', 'ProcurementManager', 'ProcurementViewer', 'admin'],
-        department: 'Corporate Governance'
+        department: 'Direction Générale BTP Maroc'
     };
 }
 
@@ -160,11 +162,11 @@ function logAudit(store, { recordId, action, performedBy, userRole, previousStat
         recordId,
         entityName: 'CapExRequests',
         action,
-        performedBy: performedBy || 'sarah.jenkins@enterprise.corp',
+        performedBy: performedBy || 'youssef.benjelloun@btp-maroc.ma',
         userRole: userRole || 'ProcurementAdmin',
         previousStatus: previousStatus || '',
         newStatus: newStatus || '',
-        comments: comments || `Action ${action} executed successfully.`,
+        comments: comments || `Action ${action} exécutée avec succès.`,
         ipAddress: '127.0.0.1'
     };
     store.auditLogs.unshift(entry);
@@ -212,7 +214,7 @@ module.exports = async (req, res) => {
         if (pathname === '/api/health') {
             return sendJson(res, 200, {
                 status: 'HEALTHY',
-                framework: 'SAP Cloud Application Programming Model (CAP)',
+                framework: 'SAP Cloud Application Programming Model (CAP) - BTP Maroc',
                 version: '10.2.2',
                 nodeVersion: process.version,
                 database: 'sqlite',
@@ -236,7 +238,7 @@ module.exports = async (req, res) => {
             const csvText = CSVHandler.exportToCSV(store.requests, store.items);
             res.statusCode = 200;
             res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-            res.setHeader('Content-Disposition', `attachment; filename="SAP_BTP_CapEx_Portfolio_${new Date().toISOString().split('T')[0]}.csv"`);
+            res.setHeader('Content-Disposition', `attachment; filename="SAP_BTP_Maroc_Chantiers_${new Date().toISOString().split('T')[0]}.csv"`);
             res.setHeader('Access-Control-Allow-Origin', '*');
             return res.end(csvText);
         }
@@ -264,7 +266,7 @@ module.exports = async (req, res) => {
                 pendingApprovalsCount,
                 highRiskRequestsCount,
                 s4SyncedCount,
-                currency: 'USD'
+                currency: 'MAD'
             });
         }
 
@@ -325,7 +327,7 @@ module.exports = async (req, res) => {
 
             if (!rows.length) {
                 return sendJson(res, 400, {
-                    error: { message: 'CSV file is empty or formatted incorrectly.' }
+                    error: { message: 'Le fichier CSV est vide ou le format d\'en-tête est incorrect.' }
                 });
             }
 
@@ -335,10 +337,10 @@ module.exports = async (req, res) => {
             rows.forEach((row) => {
                 const title = row.title || row.Title;
                 const department = row.department || row.Department;
-                const requestedBy = row.requestedBy || row.RequestedBy || currentUser.id;
+                const requestedBy = row.requestedBy || row.RequestedBy || currentUser.name;
                 const priority = (row.priority || row.Priority || 'MEDIUM').toUpperCase();
-                const justification = row.businessJustification || row.Justification || 'Bulk uploaded via CSV center';
-                const description = row.materialDescription || row.Description || row.ItemDescription || 'Standard Line Item';
+                const justification = row.businessJustification || row.Justification || 'Importation lot BTP via fichier CSV';
+                const description = row.materialDescription || row.Description || row.ItemDescription || 'Fourniture / Matériel Chantier';
                 const category = row.category || row.Category || 'Hardware';
                 const quantity = parseFloat(row.quantity || row.Quantity || 1);
                 const unitPrice = parseFloat(row.unitPrice || row.UnitPrice || 0);
@@ -373,11 +375,11 @@ module.exports = async (req, res) => {
                 const newReq = {
                     ID: reqId,
                     title: group.title,
-                    description: `Bulk imported CapEx request containing ${group.items.length} item(s).`,
+                    description: `Demande de matériel BTP importée par lot comportant ${group.items.length} poste(s).`,
                     department: group.department,
                     requestedBy: group.requestedBy,
                     totalAmount,
-                    currency: 'USD',
+                    currency: 'MAD',
                     priority: group.priority,
                     status: 'DRAFT',
                     riskScore: 20.0,
@@ -402,7 +404,7 @@ module.exports = async (req, res) => {
                         quantity: it.quantity,
                         unitPrice: it.unitPrice,
                         lineTotal: it.lineTotal,
-                        unitOfMeasure: 'EA',
+                        unitOfMeasure: 'U',
                         targetVendor_ID: store.vendors[0]?.ID,
                         costCenter_ID: store.costCenters[0]?.ID,
                         deliveryDate: new Date(Date.now() + 45 * 86400000).toISOString().split('T')[0],
@@ -418,7 +420,7 @@ module.exports = async (req, res) => {
                     userRole: currentUser.roles[0],
                     previousStatus: '',
                     newStatus: 'DRAFT',
-                    comments: `Bulk imported request with ${group.items.length} item(s).`
+                    comments: `Demande BTP importée par lot avec ${group.items.length} poste(s).`
                 });
 
                 importedCount++;
@@ -427,7 +429,7 @@ module.exports = async (req, res) => {
             return sendJson(res, 200, {
                 success: true,
                 importedCount,
-                message: `Successfully parsed and created ${importedCount} CapEx Request(s) with line items in database.`,
+                message: `Importation réussie de ${importedCount} dossier(s) BTP avec postes associés.`,
                 errors: []
             });
         }
@@ -435,7 +437,6 @@ module.exports = async (req, res) => {
         // =========================================================================
         // ODATA V4: CapExRequests Actions & CRUD
         // =========================================================================
-        // Match Action on Entity: /CapExRequests(ID=...)/action or /CapExRequests(...)/action
         const actionMatch = pathname.match(/\/odata\/v4\/procurement\/CapExRequests\((?:ID=)?([a-f0-9\-]+)\)\/([a-zA-Z0-9]+)/);
         if (actionMatch && req.method === 'POST') {
             const reqId = actionMatch[1];
@@ -444,14 +445,14 @@ module.exports = async (req, res) => {
 
             const request = store.requests.find(r => r.ID === reqId);
             if (!request) {
-                return sendJson(res, 404, { error: { message: `CapEx Request ${reqId} not found.` } });
+                return sendJson(res, 404, { error: { message: `Demande BTP ${reqId} introuvable.` } });
             }
 
             const reqItems = store.items.filter(it => it.request_ID === reqId);
 
             if (action === 'submit') {
                 if (!canTransition(request.status, 'SUBMITTED')) {
-                    return sendJson(res, 400, { error: { message: `Cannot submit request in status '${request.status}'. Only DRAFT or REJECTED can be submitted.` } });
+                    return sendJson(res, 400, { error: { message: `Impossible de soumettre une demande en statut '${request.status}'. Seuls les statuts BROUILLON ou REJETÉ sont autorisés.` } });
                 }
                 const prevStatus = request.status;
                 request.status = 'SUBMITTED';
@@ -465,7 +466,7 @@ module.exports = async (req, res) => {
                     userRole: currentUser.roles[0],
                     previousStatus: prevStatus,
                     newStatus: 'SUBMITTED',
-                    comments: 'Request submitted for department management review.'
+                    comments: 'Demande transmise au conducteur principal de travaux pour visa technique.'
                 });
 
                 updateBudgetCommitment(store, request.department);
@@ -474,7 +475,7 @@ module.exports = async (req, res) => {
 
             if (action === 'deptApprove') {
                 if (!canTransition(request.status, 'DEPT_APPROVED')) {
-                    return sendJson(res, 400, { error: { message: `Cannot department-approve request in status '${request.status}'. Current status must be SUBMITTED.` } });
+                    return sendJson(res, 400, { error: { message: `Impossible de valider techniquement la demande en statut '${request.status}'. Le statut doit être SOUMIS.` } });
                 }
                 const prevStatus = request.status;
                 request.status = 'DEPT_APPROVED';
@@ -486,7 +487,7 @@ module.exports = async (req, res) => {
                     userRole: currentUser.roles[0],
                     previousStatus: prevStatus,
                     newStatus: 'DEPT_APPROVED',
-                    comments: body.comments || 'Department manager review completed. Approved within budget.'
+                    comments: body.comments || 'Visa technique accordé par le Conducteur de Travaux. Conforme au planning.'
                 });
 
                 return sendJson(res, 200, request);
@@ -494,7 +495,7 @@ module.exports = async (req, res) => {
 
             if (action === 'financeApprove') {
                 if (!canTransition(request.status, 'FINANCE_APPROVED')) {
-                    return sendJson(res, 400, { error: { message: `Cannot finance-approve request in status '${request.status}'. Current status must be DEPT_APPROVED.` } });
+                    return sendJson(res, 400, { error: { message: `Impossible d'accorder le visa financier en statut '${request.status}'. Le statut doit être VALIDÉ DIRECTION TECHNIQUE.` } });
                 }
                 const prevStatus = request.status;
                 request.status = 'FINANCE_APPROVED';
@@ -507,7 +508,7 @@ module.exports = async (req, res) => {
                     userRole: currentUser.roles[0],
                     previousStatus: prevStatus,
                     newStatus: 'FINANCE_APPROVED',
-                    comments: body.comments || 'Executive treasury approval granted. Ready for S/4HANA release.'
+                    comments: body.comments || 'Visa financier Direction Générale accordé. Autorisation de bon de commande S/4HANA.'
                 });
 
                 return sendJson(res, 200, request);
@@ -515,9 +516,9 @@ module.exports = async (req, res) => {
 
             if (action === 'rejectProposal') {
                 if (!canTransition(request.status, 'REJECTED')) {
-                    return sendJson(res, 400, { error: { message: `Cannot reject request in status '${request.status}'.` } });
+                    return sendJson(res, 400, { error: { message: `Impossible de rejeter la demande en statut '${request.status}'.` } });
                 }
-                const reason = body.reason || 'Governance criteria not met.';
+                const reason = body.reason || 'Dépassement de barème LPEE ou budget insuffisant.';
                 const prevStatus = request.status;
                 request.status = 'REJECTED';
                 request.rejectionReason = reason;
@@ -529,7 +530,7 @@ module.exports = async (req, res) => {
                     userRole: currentUser.roles[0],
                     previousStatus: prevStatus,
                     newStatus: 'REJECTED',
-                    comments: `Proposal rejected: ${reason}`
+                    comments: `Demande rejetée : ${reason}`
                 });
 
                 updateBudgetCommitment(store, request.department);
@@ -538,7 +539,7 @@ module.exports = async (req, res) => {
 
             if (action === 'syncWithS4HANA') {
                 if (request.status !== 'FINANCE_APPROVED') {
-                    return sendJson(res, 400, { error: { message: `Cannot sync request in status '${request.status}' with S/4HANA. Final FINANCE_APPROVED status is required.` } });
+                    return sendJson(res, 400, { error: { message: `Impossible de synchroniser avec S/4HANA en statut '${request.status}'. Le visa FINANCE_APPROVED est requis.` } });
                 }
                 const s4Result = await s4Connector.createPurchaseRequisition(request, reqItems);
                 request.status = 'ORDER_CREATED';
@@ -552,7 +553,7 @@ module.exports = async (req, res) => {
                     userRole: currentUser.roles[0],
                     previousStatus: 'FINANCE_APPROVED',
                     newStatus: 'ORDER_CREATED',
-                    comments: `Synced to S/4HANA Cloud Destination S4HANA_CLOUD_DEST. Generated PR #${s4Result.s4PrNumber}.`
+                    comments: `Demande d'achat transmise à SAP S/4HANA Cloud (Filiale MA01). N° DA généré : ${s4Result.s4PrNumber}.`
                 });
 
                 const intg = store.integrations.find(i => i.systemKey === 'S4HANA_CLOUD');
@@ -576,11 +577,11 @@ module.exports = async (req, res) => {
                 logAudit(store, {
                     recordId: reqId,
                     action: 'AI_ANALYSIS',
-                    performedBy: 'SAP AI Core Orchestration (Copilot)',
+                    performedBy: 'SAP AI Core Orchestration (Copilot BTP)',
                     userRole: 'SystemAgent',
                     previousStatus: request.status,
                     newStatus: request.status,
-                    comments: `Completed GenAI Hub evaluation. Assessed Risk Score: ${evalResult.riskScore} (${evalResult.riskRating}).`
+                    comments: `Évaluation GenAI Hub terminée. Score de risque chantier : ${evalResult.riskScore} (${evalResult.riskRating}).`
                 });
 
                 return sendJson(res, 200, evalResult);
@@ -593,7 +594,7 @@ module.exports = async (req, res) => {
             const reqId = singleMatch[1];
             const request = store.requests.find(r => r.ID === reqId);
             if (!request) {
-                return sendJson(res, 404, { error: { message: `CapEx Request ${reqId} not found.` } });
+                return sendJson(res, 404, { error: { message: `Demande BTP ${reqId} introuvable.` } });
             }
             const copy = { ...request };
             copy.items = store.items.filter(it => it.request_ID === reqId);
@@ -632,12 +633,12 @@ module.exports = async (req, res) => {
 
                 const newRequest = {
                     ID: newId,
-                    title: body.title || 'Untitled CapEx Request',
+                    title: body.title || 'Nouvelle Demande Matériel BTP',
                     description: body.description || '',
-                    department: body.department || 'Operations',
-                    requestedBy: body.requestedBy || currentUser.id,
+                    department: body.department || 'Gros Oeuvre & Batiment',
+                    requestedBy: body.requestedBy || currentUser.name,
                     totalAmount: calculatedTotal,
-                    currency: body.currency || 'USD',
+                    currency: body.currency || 'MAD',
                     priority: body.priority || 'MEDIUM',
                     status: body.status || 'DRAFT',
                     submissionDate: body.status === 'SUBMITTED' ? new Date().toISOString() : null,
@@ -659,12 +660,12 @@ module.exports = async (req, res) => {
                         ID: crypto.randomUUID(),
                         request_ID: newId,
                         itemNumber: it.itemNumber || (idx + 1) * 10,
-                        materialDescription: it.materialDescription || 'Item',
+                        materialDescription: it.materialDescription || 'Fourniture BTP',
                         category: it.category || 'Hardware',
                         quantity: qty,
                         unitPrice: price,
                         lineTotal: Math.round(qty * price * 100) / 100,
-                        unitOfMeasure: it.unitOfMeasure || 'EA',
+                        unitOfMeasure: it.unitOfMeasure || 'U',
                         targetVendor_ID: it.targetVendor_ID || store.vendors[0]?.ID,
                         costCenter_ID: it.costCenter_ID || store.costCenters[0]?.ID,
                         deliveryDate: it.deliveryDate || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
@@ -680,7 +681,7 @@ module.exports = async (req, res) => {
                     userRole: currentUser.roles[0],
                     previousStatus: '',
                     newStatus: newRequest.status,
-                    comments: `Created CapEx Request '${newRequest.title}' in department ${newRequest.department}.`
+                    comments: `Création demande BTP '${newRequest.title}' sur le pôle ${newRequest.department}.`
                 });
 
                 const createdCopy = { ...newRequest };
@@ -690,9 +691,9 @@ module.exports = async (req, res) => {
         }
 
         // Fallback: 404 Not Found
-        sendJson(res, 404, { error: { message: `Route ${pathname} not found.` } });
+        sendJson(res, 404, { error: { message: `Route ${pathname} introuvable.` } });
     } catch (err) {
         console.error('[API Router Error]', err);
-        sendJson(res, 500, { error: { message: 'Internal Server Error: ' + err.message } });
+        sendJson(res, 500, { error: { message: 'Erreur Serveur Interne : ' + err.message } });
     }
 };
